@@ -1,569 +1,2146 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0a0300">
+  <meta name="apple-mobile-web-app-title" content="SYVHS Tools">
+  <meta name="theme-color" content="#cc5200">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-TileColor" content="#0a0300">
+  <meta name="msapplication-navbutton-color" content="#cc5200">
+  
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="SY_AppIcon.png">
+  <link rel="icon" type="image/png" sizes="1024x1024" href="SY_AppIcon.png">
   <title>SYVHS Tools</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="assets/SY_AppIcon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init('68UkiTjqHIKZMkeCC');</script>
+
   <style>
     :root {
-      --orange: #ff8017;
-      --orange-light: #ffaa55;
-      --orange-dim: rgba(255,128,23,0.18);
-      --orange-gradient: linear-gradient(180deg, #ffd199 0%, #ff8017 55%, #cc4400 100%);
-      --white: #fefefe;
-      --muted: rgba(254,254,254,0.55);
-      --panel: rgba(255,255,255,0.04);
-      --panel-border: rgba(255,255,255,0.08);
-      --shadow: 0 20px 46px rgba(0,0,0,0.55);
-      --card-hover: rgba(255,128,23,0.15);
-      --radius: 34px;
-      --app-spacing: 16px;
+      --teal: #cc5200; --white: #fefaf5; --muted: #e8c8a8;
+      --panel: rgba(255,255,255,0.02); --panel-border: rgba(255,255,255,0.05);
+      --shadow: 0 20px 46px rgba(0,0,0,0.30); --soft-shadow: 0 12px 24px rgba(0,0,0,0.22);
+      --card-hover: rgba(255,255,255,0.12); --app-spacing: 16px; --radius: 34px;
+      --standalone-app-width: 100vw; --standalone-app-height: 100dvh;
     }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
     html { height: -webkit-fill-available; }
     html, body { width: 100%; height: 100%; min-height: 100%; background: #0a0300; overflow: hidden; }
-    body {
-      min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-      color: var(--white); touch-action: pan-y; user-select: none;
-      -webkit-user-select: none; -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
+    body { min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: var(--white); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+    /* The Frame ensures app stays centered with margins on Desktop/Popout */
+    .frame { 
+      width: 100%; height: 100dvh; min-height: 100vh; min-height: -webkit-fill-available; display: flex; align-items: center; justify-content: center; 
+      padding: 10px;
     }
-    .frame {
-      width: 100%; height: 100dvh; min-height: 100vh; min-height: -webkit-fill-available;
-      display: flex; align-items: center; justify-content: center; padding: 10px;
-    }
+
+    /* THE PERMANENT IPHONE BUBBLE */
     .app {
       width: 430px; height: 880px; max-width: 100%; max-height: 100%;
-      border-radius: var(--radius); overflow: hidden; position: relative;
-      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.10);
-      border-top-color: rgba(255,255,255,0.04);
-      background: linear-gradient(168deg,
-        rgba(10,3,0,0.98) 0%,
-        rgba(22,8,0,0.96) 28%,
-        rgba(85,32,0,0.93) 58%,
-        rgba(120,46,0,0.95) 80%,
-        rgba(10,3,0,0.98) 100%);
-      display: flex; flex-direction: column;
-      padding: 14px var(--app-spacing) var(--app-spacing) var(--app-spacing);
-      isolation: isolate; container-type: inline-size;
+      border-radius: var(--radius); 
+      overflow: hidden; position: relative; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.04);
+      background: linear-gradient(168deg, rgba(6,28,28,0.97) 0%, rgba(4,24,24,0.95) 30%, rgba(90,42,10,0.92) 60%, rgba(120,58,15,0.96) 82%, rgba(4,30,30,0.97) 100%);
+      display: flex; flex-direction: column; padding: 14px var(--app-spacing) var(--app-spacing) var(--app-spacing); isolation: isolate;
+      container-type: inline-size;
     }
+
     .app::before {
       content: ""; position: absolute; inset: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse at 55% 25%, rgba(255,128,23,0.14) 0%, transparent 60%),
-        radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 50%);
+      background: radial-gradient(ellipse at 50% 20%, rgba(140,68,18,0.18) 0%, transparent 60%),
+                  radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 50%);
       z-index: 0;
     }
-    .ghost-logo {
-      position: absolute; top: 52%; left: 50%; width: 115%; opacity: 0.065;
+
+    .ghost-logo { position: absolute; top: 56%; left: 50%; width: 120%; opacity: 0.07; transform: translate(-50%, -50%); filter: grayscale(100%) contrast(108%) brightness(114%); pointer-events: none; z-index: 0; }
+    
+    .content {
+      position: relative; z-index: 1; width: 100%;
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column; align-items: center;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 10px;
+      height: 44px;
+      flex-shrink: 0;
+      margin-bottom: 4px;
+      position: relative;
+    }
+
+    /* ── NAV DROPDOWN MENU ─────────────────────────────── */
+    .nav-menu-btn {
+      appearance: none; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13); border-radius: 12px;
+      color: rgba(255,255,255,0.92); width: 34px; height: 34px;
+      font-size: 14px; font-weight: 900; letter-spacing: 0.08em;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.16s, border-color 0.16s;
+    }
+    .nav-menu-btn.is-open,
+    .nav-menu-btn:active { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.26); }
+    .nav-menu {
+      position: fixed; z-index: 9999; min-width: 172px;
+      background: rgba(3, 20, 20, 0.58);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 16px; padding: 5px;
+      box-shadow: 0 14px 44px rgba(0,0,0,0.52);
+      backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
+      transform-origin: top right;
+      transform: scale(0.88) translateY(-8px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.17s ease, transform 0.19s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    .nav-menu.is-open { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    .nav-menu-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 11px;
+      text-decoration: none; color: #ffe8d0; background: transparent;
+      font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; border: none; cursor: pointer; width: 100%;
+      transition: background 0.13s;
+    }
+    .nav-menu-item:active { background: rgba(255,255,255,0.1); }
+    .nav-menu-icon { font-size: 14px; flex-shrink: 0; }
+    .nav-menu-sep { height: 1px; background: rgba(255,255,255,0.09); margin: 3px 6px; }
+
+    .logo-clear { width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.24)); flex-shrink: 0; }
+    .page-title { position: absolute; left: 0; right: 0; text-align: center; font-size: 15px; font-weight: 700; color: #ffe8d0; text-transform: uppercase; margin: 0; letter-spacing: 0.14em; pointer-events: none; }
+    .header { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 0; }
+    .greeting { margin: 2px 0 4px 0; font-size: 15px; font-weight: 700; font-style: italic; color: #ffaa55; text-transform: uppercase; letter-spacing: 0.14em; }
+    .subtitle { margin: 4px 0 6px 0; max-width: 296px; font-size: 10.5px; line-height: 1.35; font-weight: 500; color: var(--muted); text-align: center; }
+
+    /* ── PRIMARY NAV (Countdown & Directory) ─────────── */
+    .primary-nav { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+    .primary-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 10px 6px; height: 56px; border-radius: 18px; text-decoration: none; color: #fff;
+      background: rgba(240,125,30,0.07); border: 1px solid rgba(255,150,55,0.16);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); text-align: center;
+      gap: 3px; transition: background 0.2s, transform 0.1s;
+    }
+    .primary-btn:active { transform: scale(0.97); background: rgba(240,125,30,0.14); }
+    .primary-btn .quick-link-icon { font-size: 20px; }
+    .primary-btn .quick-link-label { font-size: 10px; font-weight: 800; letter-spacing: 0.13em; color: #ffcc88; }
+
+    .section-label { width: 100%; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); opacity: 0.65; margin-bottom: 4px; text-align: center; }
+    .quick-links-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 48px; gap: 5px; width: 100%; }
+    .quick-link-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 6px 6px; height: 48px; border-radius: 16px; text-decoration: none; color: #fff;
+      background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); text-align: center;
+      gap: 3px; transition: background 0.2s;
+    }
+    .quick-link-btn:active { background: var(--card-hover); }
+    .quick-link-icon { font-size: 17px; line-height: 1; display: block; }
+    .quick-link-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.10em; line-height: 1; }
+
+    .footer-note { margin-top: auto; padding: 4px 0 0 0; font-size: 9px; color: #d0a878; font-weight: 600; text-align: center; flex-shrink: 0; }
+
+    /* ── DAILY QUOTE ───────────────────────────────────── */
+    .daily-quote {
+      width: 100%; text-align: center; padding: 4px 8px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .daily-quote-text {
+      font-size: 11px; font-weight: 500; font-style: italic;
+      color: rgba(255,255,255,0.72); line-height: 1.4; margin: 0;
+    }
+    .daily-quote-author {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: rgba(255,150,55,0.55); margin: 0;
+    }
+
+    /* ── ADD TO HOME SCREEN PROMPT ─────────────────────── */
+    .a2hs-prompt {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      padding: 0 14px 16px;
+      transform: translateY(110%);
+      transition: transform 0.48s cubic-bezier(0.34, 1.36, 0.64, 1);
+      pointer-events: none;
+    }
+    .a2hs-prompt.is-visible { transform: translateY(0); pointer-events: auto; }
+    .a2hs-inner {
+      display: flex; align-items: center; gap: 11px;
+      background: rgba(2, 22, 22, 0.82);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 20px; padding: 12px 14px;
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 -6px 28px rgba(0,0,0,0.34);
+    }
+    .a2hs-icon { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; }
+    .a2hs-text { flex: 1; }
+    .a2hs-title { font-size: 11.5px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.11em; margin: 0 0 3px; }
+    .a2hs-desc  { font-size: 10px; font-weight: 500; color: var(--muted); line-height: 1.45; margin: 0; }
+    .a2hs-share {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(0,130,255,0.85); color: #fff;
+      border-radius: 5px; padding: 1px 4px; font-size: 10px; font-weight: 700;
+      vertical-align: middle; margin: 0 1px;
+    }
+    .a2hs-dismiss {
+      appearance: none; background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);
+      border-radius: 99px; width: 26px; height: 26px; font-size: 12px;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .a2hs-dismiss:active { background: rgba(255,255,255,0.18); }
+
+    /* ── DESKTOP INSTALL BANNER ─────────────────────── */
+    .install-banner {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      padding: 12px 14px 0;
+      transform: translateY(-110%);
+      transition: transform 0.44s cubic-bezier(0.34, 1.3, 0.64, 1);
+      pointer-events: none;
+    }
+    .install-banner.is-visible { transform: translateY(0); pointer-events: auto; }
+    .install-banner-inner {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(120,58,15,0.78);
+      border: 1px solid rgba(75,225,225,0.28);
+      border-radius: 18px; padding: 11px 14px;
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.34);
+    }
+    .install-banner-icon { font-size: 22px; flex-shrink: 0; }
+    .install-banner-text { flex: 1; }
+    .install-banner-title { font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.11em; margin: 0 0 2px; }
+    .install-banner-desc  { font-size: 10px; font-weight: 500; color: #ffcc88; line-height: 1.4; margin: 0; }
+    .install-banner-btn {
+      appearance: none; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3);
+      color: #fff; border-radius: 10px; padding: 6px 12px;
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+      cursor: pointer; flex-shrink: 0; white-space: nowrap;
+    }
+    .install-banner-btn:active { background: rgba(255,255,255,0.28); }
+    .install-banner-dismiss {
+      appearance: none; background: transparent; border: none;
+      color: rgba(255,255,255,0.55); font-size: 14px; cursor: pointer;
+      flex-shrink: 0; padding: 2px 4px; line-height: 1;
+    }
+
+    /* ── DESKTOP INSTALL MODAL ──────────────────────── */
+    .install-modal[hidden] { display: none; }
+    .install-modal {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .install-modal-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(1,12,12,0.76);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .install-modal-dialog {
+      position: relative; width: min(100%, 380px);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(8,31,31,0.85);
+      box-shadow: 0 26px 48px rgba(0,0,0,0.4);
+      padding: 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .install-modal-header { display: flex; align-items: center; gap: 10px; }
+    .install-modal-appicon { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; }
+    .install-modal-titles { flex: 1; }
+    .install-modal-title { font-size: 14px; font-weight: 800; color: #fff; margin: 0 0 2px; letter-spacing: 0.05em; }
+    .install-modal-sub   { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin: 0; }
+    .install-modal-close {
+      appearance: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6); border-radius: 99px; width: 28px; height: 28px;
+      font-size: 13px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .install-modal-steps { display: flex; flex-direction: column; gap: 10px; }
+    .install-step {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(255,255,255,0.05); border-radius: 14px; padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .install-step-num {
+      width: 20px; height: 20px; border-radius: 99px;
+      background: rgba(240,125,30,0.3); border: 1px solid rgba(255,150,55,0.4);
+      color: #ffaa55; font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .install-step-text { font-size: 11px; font-weight: 500; color: #ffd8ad; line-height: 1.5; margin: 0; }
+    .install-step-text strong { color: #fff; font-weight: 700; }
+    .install-modal-cta {
+      appearance: none; width: 100%;
+      background: linear-gradient(135deg, #cc5200 0%, #ff6600 100%);
+      border: none; border-radius: 14px; padding: 13px;
+      color: #fff; font-size: 12px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.12em; cursor: pointer;
+    }
+    .install-modal-cta:active { opacity: 0.85; }
+    .install-modal-note { font-size: 9.5px; color: var(--muted); text-align: center; opacity: 0.7; margin: 0; }
+
+    body.is-standalone {
+      background: #0a0300;
+    }
+
+    body.is-standalone::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: #0a0300;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body.is-standalone .frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: -webkit-fill-available;
+      padding: 0 8px max(24px, calc(env(safe-area-inset-bottom) + 8px)) 8px;
+      z-index: 1;
+    }
+
+    body.is-standalone .app {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 34px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 24px 46px rgba(0,0,0,0.22);
+    }
+
+    body.is-standalone .content {
+      padding-top: max(10px, env(safe-area-inset-top));
+      padding-right: max(var(--app-spacing), env(safe-area-inset-right));
+      padding-bottom: 14px;
+      padding-left: max(var(--app-spacing), env(safe-area-inset-left));
+    }
+
+    /* NATIVE APP OVERRIDE (Option B) */
+    @media (max-width: 430px) {
+      body:not(.is-popout):not(.is-standalone) .frame {
+        /* Injects Apple's Safe Area padding so it avoids the notch and swipe bar */
+        padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom) 12px;
+      }
+      body:not(.is-popout):not(.is-standalone) .app {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: var(--radius); /* Restores the curved edges */
+        border: 1px solid rgba(255,255,255,0.12); /* Maintains the glass border */
+      }
+      /* nav menu always visible */
+      body { touch-action: pan-y; }
+    }
+
+    /* ── MAINTENANCE MODAL ──────────────────────────────── */
+    .maint-modal[hidden] { display: none; }
+    .maint-modal {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .maint-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(1,12,12,0.80);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .maint-dialog {
+      position: relative; width: min(100%, 340px);
+      border-radius: 26px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(6,26,26,0.88);
+      box-shadow: 0 28px 52px rgba(0,0,0,0.46);
+      padding: 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .maint-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .maint-title-row { display: flex; align-items: center; gap: 9px; }
+    .maint-title-icon { font-size: 22px; line-height: 1; }
+    .maint-title { font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.12em; margin: 0; }
+    .maint-subtitle { font-size: 9.5px; font-weight: 600; color: var(--muted); opacity: 0.7; text-transform: uppercase; letter-spacing: 0.12em; margin: 2px 0 0; }
+    .maint-close {
+      appearance: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6); border-radius: 99px; width: 28px; height: 28px;
+      font-size: 13px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .maint-close:active { background: rgba(255,255,255,0.18); }
+    .maint-options { display: flex; flex-direction: column; gap: 9px; }
+    .maint-option {
+      display: flex; align-items: center; gap: 13px;
+      padding: 14px 15px; border-radius: 18px; text-decoration: none;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      transition: background 0.18s, border-color 0.18s; cursor: pointer;
+    }
+    .maint-option:active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18); }
+    .maint-option-icon {
+      width: 42px; height: 42px; border-radius: 13px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .maint-option-icon--reserve { background: rgba(220,110,25,0.18); border: 1px solid rgba(255,140,40,0.2); }
+    .maint-option-icon--repair  { background: rgba(255,140,60,0.16); border: 1px solid rgba(255,160,80,0.22); }
+    .maint-option-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .maint-option-label { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.09em; margin: 0; }
+    .maint-option-desc  { font-size: 9.5px; font-weight: 500; color: var(--muted); line-height: 1.4; margin: 0; opacity: 0.82; }
+    .maint-option-arrow { font-size: 14px; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+
+    /* ── FEEDBACK MODAL ─────────────────────────────────── */
+    .feedback-modal[hidden] { display: none; }
+    .feedback-modal {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .feedback-modal-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(1,12,12,0.8);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .feedback-dialog {
+      position: relative; width: min(100%, 360px);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(6,26,26,0.85);
+      box-shadow: 0 26px 48px rgba(0,0,0,0.44);
+      padding: 18px; display: flex; flex-direction: column; gap: 12px;
+      max-height: calc(100% - 20px); overflow-y: auto;
+    }
+    .feedback-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .feedback-title { font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.12em; margin: 0; }
+    .feedback-close {
+      appearance: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6); border-radius: 99px; width: 28px; height: 28px;
+      font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .feedback-rating { display: flex; justify-content: space-between; gap: 4px; }
+    .feedback-rating-btn {
+      appearance: none; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; flex: 1; padding: 8px 4px; font-size: 20px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center;
+    }
+    .feedback-rating-btn.is-selected { background: rgba(240,125,30,0.22); border-color: rgba(255,160,70,0.4); }
+    .feedback-rating-btn:active { background: rgba(255,255,255,0.14); }
+    .feedback-field { display: flex; flex-direction: column; gap: 5px; }
+    .feedback-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); opacity: 0.8; }
+    .feedback-textarea, .feedback-input {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; color: #fff5ea; font-size: 12px; font-weight: 500;
+      padding: 10px 12px; resize: none; outline: none; font-family: inherit;
+    }
+    .feedback-textarea { min-height: 64px; line-height: 1.45; }
+    .feedback-textarea:focus, .feedback-input:focus { border-color: rgba(255,140,40,0.4); }
+    .feedback-submit {
+      appearance: none; width: 100%;
+      background: linear-gradient(135deg, #cc5200 0%, #ff6600 100%);
+      border: none; border-radius: 14px; padding: 13px;
+      color: #fff; font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.12em; cursor: pointer;
+    }
+    .feedback-submit:active { opacity: 0.85; }
+    .feedback-note { font-size: 9px; color: var(--muted); text-align: center; opacity: 0.65; margin: 0; }
+
+    /* ── NEWS CHOOSER MODAL (like Maintenance) ───────────── */
+    .news-chooser[hidden] { display: none; }
+    .news-chooser {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .news-chooser-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(1,12,12,0.80);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .news-chooser-dialog {
+      position: relative; width: min(100%, 340px);
+      border-radius: 26px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(6,26,26,0.88);
+      box-shadow: 0 28px 52px rgba(0,0,0,0.46);
+      padding: 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .news-chooser-icon--events { background: rgba(220,110,25,0.18); border: 1px solid rgba(255,140,40,0.2); }
+    .news-chooser-icon--athletics { background: rgba(255,100,60,0.16); border: 1px solid rgba(255,130,80,0.22); }
+
+    /* ── NEWS FEED (matches app design language) ─────────── */
+    .news-modal[hidden] { display: none; }
+    .news-modal {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; flex-direction: column;
+      padding: 14px var(--app-spacing) var(--app-spacing) var(--app-spacing);
+      background: linear-gradient(168deg, #1a0a00 0%, #140800 30%, #3d1c00 60%, #5c2b00 82%, #140800 100%);
+      isolation: isolate;
+    }
+    .news-modal::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 20%, rgba(140,68,18,0.18) 0%, transparent 60%),
+                  radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 50%);
+      z-index: 0;
+    }
+    .news-modal > * { position: relative; z-index: 1; }
+    .news-ghost-logo {
+      position: absolute; top: 56%; left: 50%; width: 120%; opacity: 0.07;
       transform: translate(-50%, -50%);
-      filter: saturate(0.2) brightness(1.8) contrast(1.1);
+      filter: grayscale(100%) contrast(108%) brightness(114%);
       pointer-events: none; z-index: 0;
     }
-    .content {
-      position: relative; z-index: 1; width: 100%; height: 100%;
-      display: flex; flex-direction: column; align-items: center;
-      overflow-y: auto; overflow-x: hidden;
-      scrollbar-width: none; -ms-overflow-style: none;
+    body.is-standalone .news-modal {
+      padding-top: max(14px, env(safe-area-inset-top));
     }
-    .content::-webkit-scrollbar { display: none; }
 
-    /* TOP ROW */
-    .top-row {
+    /* ── ATHLETICS DASHBOARD ── */
+    .athletics-view { display: none; flex-direction: column; width: 100%; height: 100%; min-height: 0; }
+    .athletics-view.is-active { display: flex; }
+
+    /* Sport filter tabs */
+    .ath-tabs {
+      display: flex; gap: 6px; overflow-x: auto; flex-shrink: 0;
+      padding: 2px 0 8px 0; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .ath-tabs::-webkit-scrollbar { display: none; }
+    .ath-tab {
+      appearance: none; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6);
+      border-radius: 20px; padding: 5px 12px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
+      cursor: pointer; flex-shrink: 0; transition: all 0.15s;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .ath-tab.is-active {
+      background: rgba(220,110,25,0.22); border-color: rgba(255,160,70,0.35);
+      color: #ffaa55;
+    }
+    .ath-tab:active { background: rgba(255,255,255,0.12); }
+    .ath-tab-emoji { font-size: 13px; line-height: 1; }
+
+    /* Event list */
+    .ath-list {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      display: flex; flex-direction: column; gap: 4px;
+      padding-bottom: 14px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    .ath-list::-webkit-scrollbar { width: 5px; }
+    .ath-list::-webkit-scrollbar-track { background: transparent; }
+    .ath-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+    /* Date group header */
+    .ath-date-hdr {
+      font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em;
+      color: #ffaa55; margin: 10px 0 3px 2px; opacity: 0.85;
+    }
+    .ath-date-hdr:first-child { margin-top: 2px; }
+
+    /* Today banner */
+    .ath-today-banner {
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em;
+      color: #fff; background: rgba(240,125,30,0.18); border: 1px solid rgba(255,160,70,0.25);
+      border-radius: 12px; padding: 6px 12px; margin: 0 0 4px 0; text-align: center;
+    }
+
+    /* Event card */
+    .ath-ev {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px; border-radius: 14px;
+      background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    }
+    .ath-ev.is-past { opacity: 0.35; }
+    .ath-ev.is-today {
+      background: rgba(240,125,30,0.08); border-color: rgba(255,160,70,0.18);
+    }
+    .ath-ev-icon { font-size: 20px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+    .ath-ev-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .ath-ev-opponent {
+      font-size: 12px; font-weight: 800; color: #fff5ea; margin: 0;
+      line-height: 1.25; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .ath-ev-meta {
+      font-size: 9px; font-weight: 600; color: var(--muted); opacity: 0.7; margin: 0;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .ath-ev-sport {
+      font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #ffaa55; opacity: 0.8;
+    }
+    /* Badges */
+    .ath-badge {
+      font-size: 7.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 1px 5px; border-radius: 4px; white-space: nowrap;
+    }
+    .ath-badge--home {
+      color: #5bff61; background: rgba(91,255,97,0.12); border: 1px solid rgba(91,255,97,0.22);
+    }
+    .ath-badge--away {
+      color: #ffb74d; background: rgba(255,183,77,0.12); border: 1px solid rgba(255,183,77,0.22);
+    }
+    .ath-badge--level {
+      color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Empty state */
+    .ath-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px; padding: 30px; text-align: center;
+    }
+    .ath-empty-icon { font-size: 28px; opacity: 0.4; }
+    .ath-empty-text { font-size: 11px; font-weight: 600; color: var(--muted); opacity: 0.6; }
+
+    /* ── News toggle bar ── */
+    .news-toggle {
+      display: flex; gap: 4px; width: 100%; flex-shrink: 0; margin-bottom: 6px;
+      background: rgba(255,255,255,0.04); border-radius: 12px; padding: 3px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .news-toggle-btn {
+      flex: 1; appearance: none; border: none; border-radius: 10px;
+      padding: 7px 0; font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; cursor: pointer;
+      background: transparent; color: rgba(255,255,255,0.45);
+      transition: background 0.2s, color 0.2s;
+    }
+    .news-toggle-btn.is-active {
+      background: rgba(240,125,30,0.18); color: #ffaa55;
+      border: 1px solid rgba(255,140,40,0.2);
+    }
+    .news-toggle-btn:not(.is-active) { border: 1px solid transparent; }
+    .news-toggle-btn:active { opacity: 0.7; }
+
+    /* ── News top-row (mirrors .top-row exactly) ── */
+    .news-top-row {
       display: flex; align-items: center; justify-content: space-between;
-      width: 100%; margin-bottom: 10px; flex-shrink: 0;
+      width: 100%; gap: 10px; height: 44px; flex-shrink: 0; margin-bottom: 4px;
+      position: relative;
     }
-    .nav-link {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--panel); border: 1px solid var(--panel-border);
+    .news-page-title {
+      position: absolute; left: 0; right: 0; text-align: center;
+      font-size: 15px; font-weight: 700; color: #ffe8d0;
+      text-transform: uppercase; margin: 0; letter-spacing: 0.14em;
+      pointer-events: none;
+    }
+    .news-close {
+      appearance: none; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13); border-radius: 12px;
+      color: rgba(255,255,255,0.92); width: 34px; height: 34px;
+      font-size: 14px; cursor: pointer; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      color: var(--white); text-decoration: none; opacity: 0.8;
-      transition: opacity 0.2s, background 0.2s;
+      transition: background 0.16s, border-color 0.16s;
     }
-    .nav-link:hover { opacity: 1; background: var(--card-hover); }
-    .nav-link svg { width: 18px; height: 18px; }
-    .school-logo { height: 42px; object-fit: contain; }
-    .nav-spacer { width: 36px; }
-
-    /* SEARCH BAR */
-    .search-container {
-      width: 100%; position: relative; margin-bottom: 10px; flex-shrink: 0;
-    }
-    .search-input {
-      width: 100%; background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 14px;
-      padding: 10px 14px 10px 40px; color: var(--white);
-      font-size: clamp(13px,4vw,15px); font-family: inherit;
-      outline: none; transition: border-color 0.2s, background 0.2s;
-      user-select: text; -webkit-user-select: text;
-    }
-    .search-input::placeholder { color: rgba(255,255,255,0.3); }
-    .search-input:focus {
-      border-color: rgba(255,128,23,0.55);
-      background: rgba(255,128,23,0.08);
-    }
-    .search-icon {
-      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-      color: rgba(255,255,255,0.35); pointer-events: none; width: 18px; height: 18px;
-    }
-    .search-clear {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; color: rgba(255,255,255,0.35);
-      cursor: pointer; padding: 4px; display: none; align-items: center;
-      justify-content: center; border-radius: 50%; transition: color 0.2s;
-    }
-    .search-clear.visible { display: flex; }
-    .search-clear:hover { color: var(--orange-light); }
-    .search-clear svg { width: 14px; height: 14px; }
-
-    /* TABS */
-    .tabs {
-      display: flex; gap: 6px; width: 100%; margin-bottom: 10px;
-      flex-shrink: 0; overflow-x: auto; scrollbar-width: none;
-    }
-    .tabs::-webkit-scrollbar { display: none; }
-    .tab {
-      padding: 5px 14px; border-radius: 20px; font-size: clamp(9px,3vw,11px);
-      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      border: 1px solid var(--panel-border); background: var(--panel);
-      color: var(--muted); cursor: pointer; white-space: nowrap;
-      transition: all 0.2s; flex-shrink: 0;
-    }
-    .tab.active {
-      background: var(--orange-dim); border-color: rgba(255,128,23,0.4);
-      color: var(--orange-light);
-    }
-    .tab:hover:not(.active) {
-      background: rgba(255,255,255,0.07); color: var(--white);
+    .news-close:active { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.26); }
+    .news-updated {
+      font-size: 9px; font-weight: 600; color: var(--muted); opacity: 0.6;
+      margin: 0 0 6px 0; flex-shrink: 0; text-align: center;
     }
 
-    /* MAIN SCROLL AREA */
-    .scroll-pane {
-      width: 100%; flex: 1; overflow-y: auto; overflow-x: hidden;
-      scrollbar-width: none; -ms-overflow-style: none;
+    /* ── News feed list ── */
+    .news-feed {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      display: flex; flex-direction: column; gap: 5px;
+      padding-bottom: 14px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
     }
-    .scroll-pane::-webkit-scrollbar { display: none; }
+    .news-feed::-webkit-scrollbar { width: 5px; }
+    .news-feed::-webkit-scrollbar-track { background: transparent; }
+    .news-feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
-    /* LINKS VIEW */
-    #links-view { display: block; }
-
-    .category-section { margin-bottom: 14px; }
-    .category-label {
-      font-size: clamp(8px,3vw,10px); font-weight: 700; letter-spacing: 0.15em;
-      color: rgba(255,128,23,0.7); text-transform: uppercase;
-      margin-bottom: 6px; padding-left: 2px;
+    /* ── News cards (glass tiles matching quick-link-btn) ── */
+    .news-card {
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 5px;
+      text-decoration: none; color: inherit;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      transition: background 0.2s; cursor: pointer;
     }
-    .link-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    .news-card:active { background: var(--card-hover); }
+    .news-card-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .news-card-date {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #ffaa55; margin: 0; white-space: nowrap;
     }
-    .link-tile {
-      background: var(--panel); border: 1px solid var(--panel-border);
-      border-radius: 14px; padding: 10px 6px 8px;
-      display: flex; flex-direction: column; align-items: center; gap: 5px;
-      text-decoration: none; color: var(--white);
-      transition: background 0.18s, border-color 0.18s, transform 0.15s;
-      cursor: pointer; text-align: center;
+    .news-card-pin {
+      font-size: 8px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #ffb74d;
+      background: rgba(255,183,77,0.12); border: 1px solid rgba(255,183,77,0.25);
+      border-radius: 5px; padding: 1px 5px;
     }
-    .link-tile:hover, .link-tile:active {
-      background: var(--card-hover); border-color: rgba(255,128,23,0.35);
-      transform: scale(0.97);
+    .news-card-title {
+      font-size: 12.5px; font-weight: 700; color: #fff5ea;
+      line-height: 1.35; margin: 0;
     }
-    .link-tile.internal {
-      border-color: rgba(255,128,23,0.22);
-      background: rgba(255,128,23,0.07);
+    .news-card-summary {
+      font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.55);
+      line-height: 1.4; margin: 0;
     }
-    .link-tile.internal:hover {
-      background: var(--card-hover); border-color: rgba(255,128,23,0.45);
+    .news-card-author {
+      font-size: 9px; font-weight: 600; color: var(--muted); opacity: 0.55; margin: 0;
     }
-    .tile-icon {
-      width: 28px; height: 28px; display: flex; align-items: center;
-      justify-content: center; border-radius: 8px;
-      background: rgba(255,255,255,0.07); flex-shrink: 0;
+    .news-card-thumb-wrap { margin: 4px 0 2px 0; }
+    .news-card-thumb {
+      width: 100%; max-height: 160px; object-fit: cover;
+      border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);
+      display: block; cursor: pointer; transition: opacity 0.15s;
     }
-    .tile-icon svg { width: 16px; height: 16px; color: var(--orange-light); }
-    .tile-label {
-      font-size: clamp(8px,2.8vw,10px); font-weight: 600; line-height: 1.25;
-      letter-spacing: 0.03em; color: rgba(255,255,255,0.8);
+    .news-card-thumb:active { opacity: 0.7; }
+    .news-card::after {
+      content: "Read more ›"; display: block;
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #ffaa55; opacity: 0.7; margin-top: 4px;
     }
-
-    /* DIRECTORY VIEW */
-    #directory-view { display: none; }
-
-    .dir-results {
-      display: flex; flex-direction: column; gap: 7px;
+    .news-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+      text-align: center; padding: 20px;
     }
-    .dir-section-title {
-      font-size: clamp(8px,3vw,10px); font-weight: 700; letter-spacing: 0.15em;
-      color: rgba(255,128,23,0.7); text-transform: uppercase;
-      margin: 8px 0 4px 2px;
+    .news-empty-icon { font-size: 28px; opacity: 0.5; }
+    .news-empty-text { font-size: 11px; font-weight: 600; color: var(--muted); opacity: 0.7; }
+    .news-loading { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .news-loading-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(75,225,225,0.5); margin: 0 3px;
+      animation: newsPulse 1s ease-in-out infinite;
     }
-    .dir-card {
-      background: var(--panel); border: 1px solid var(--panel-border);
-      border-radius: 14px; padding: 10px 12px;
-      display: flex; flex-direction: column; gap: 3px;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .dir-card:hover { background: rgba(255,128,23,0.07); border-color: rgba(255,128,23,0.25); }
-    .dir-name {
-      font-size: clamp(12px,4vw,14px); font-weight: 700;
-      color: var(--white); letter-spacing: 0.01em;
-    }
-    .dir-role {
-      font-size: clamp(9px,3vw,11px); font-weight: 500;
-      color: var(--orange-light); letter-spacing: 0.04em;
-    }
-    .dir-contact {
-      display: flex; gap: 8px; margin-top: 3px; flex-wrap: wrap;
-    }
-    .dir-contact a {
-      font-size: clamp(9px,3vw,11px); font-weight: 500;
-      color: rgba(255,255,255,0.45); text-decoration: none; letter-spacing: 0.02em;
-      transition: color 0.15s; display: flex; align-items: center; gap: 3px;
-    }
-    .dir-contact a:hover { color: var(--orange-light); }
-    .dir-contact a svg { width: 11px; height: 11px; flex-shrink: 0; }
-
-    .dir-empty {
-      text-align: center; padding: 32px 0;
-      color: rgba(255,255,255,0.25); font-size: 13px; font-weight: 500;
-      letter-spacing: 0.06em;
-    }
-    .dir-count {
-      font-size: clamp(8px,2.8vw,10px); font-weight: 600;
-      letter-spacing: 0.1em; color: rgba(255,255,255,0.2);
-      text-align: right; margin-bottom: 6px; text-transform: uppercase;
+    .news-loading-dot:nth-child(2) { animation-delay: 0.15s; }
+    .news-loading-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes newsPulse {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* FOOTER */
-    .footer {
-      flex-shrink: 0; padding-top: 8px; width: 100%; text-align: center;
-      font-size: clamp(8px,2.8vw,10px); font-weight: 500;
-      letter-spacing: 0.12em; color: rgba(255,255,255,0.2);
-      text-transform: uppercase;
+    /* ── News detail view ── */
+    .news-detail { display: none; flex-direction: column; width: 100%; height: 100%; }
+    .news-detail.is-active { display: flex; }
+    .news-list { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    .news-list.is-hidden { display: none; }
+    .news-detail-header {
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0; margin-bottom: 10px;
+    }
+    .news-back {
+      appearance: none; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13); border-radius: 12px;
+      color: rgba(255,255,255,0.7); padding: 6px 12px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; gap: 4px;
+      transition: background 0.16s;
+    }
+    .news-back:active { background: rgba(255,255,255,0.16); }
+    .news-detail-scroll {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding-bottom: 60px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    .news-detail-scroll::-webkit-scrollbar { width: 5px; }
+    .news-detail-scroll::-webkit-scrollbar-track { background: transparent; }
+    .news-detail-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    .news-detail-meta {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .news-detail-date {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #ffaa55;
+    }
+    .news-detail-author { font-size: 9px; font-weight: 600; color: var(--muted); opacity: 0.7; }
+    .news-detail-title {
+      font-size: 16px; font-weight: 800; color: #fff;
+      line-height: 1.3; margin: 0 0 12px 0;
+    }
+    .news-detail-body {
+      font-size: 12.5px; font-weight: 500; color: rgba(255,255,255,0.78);
+      line-height: 1.6; margin: 0;
+    }
+    .news-detail-body p { margin: 0 0 10px 0; }
+    .news-detail-body strong, .news-detail-body b { color: #fff; font-weight: 700; }
+    .news-detail-body ul, .news-detail-body ol { margin: 8px 0; padding-left: 20px; }
+    .news-detail-body li { margin-bottom: 4px; }
+    .news-detail-body a { color: #ffaa55; text-decoration: underline; }
+    .news-detail-imgs { display: none; }
+    .news-detail-img-inline {
+      float: right; margin: 4px 0 8px 12px;
+      width: 42%; max-width: 160px; height: auto;
+      border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer; transition: opacity 0.15s;
+      object-fit: cover;
+    }
+    .news-detail-img-inline:nth-of-type(even) {
+      float: left; margin: 4px 12px 8px 0;
+    }
+    .news-detail-img-inline:active { opacity: 0.7; }
+
+    /* ── Image lightbox ── */
+    .news-lightbox {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+    }
+    .news-lightbox.is-open { opacity: 1; pointer-events: auto; }
+    .news-lightbox-img {
+      max-width: 92vw; max-height: 88vh; object-fit: contain;
+      border-radius: 8px; transform: scale(0.92); transition: transform 0.25s ease;
+    }
+    .news-lightbox.is-open .news-lightbox-img { transform: scale(1); }
+    .news-lightbox-close {
+      position: absolute; top: 14px; right: 14px;
+      appearance: none; background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff; border-radius: 99px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .news-lightbox-close:active { background: rgba(255,255,255,0.24); }
+    .news-ps-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 16px; padding: 8px 14px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; text-decoration: none;
+      color: #ffaa55; background: rgba(240,125,30,0.1);
+      border: 1px solid rgba(255,150,55,0.22);
+      border-radius: 10px; transition: background 0.15s;
+    }
+    .news-ps-link:active { background: rgba(240,125,30,0.22); }
+    .news-detail-divider {
+      width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin: 14px 0;
     }
   </style>
 </head>
 <body>
   <div class="frame">
     <div class="app">
-      <img class="ghost-logo" src="assets/SYVHS_Logo_Only.svg" alt="">
+      <img src="SY_Logo.png" alt="" class="ghost-logo">
+      <div class="top-row">
+        <a href="index.html" class="nav-link" aria-label="Home"><img src="SY_Logo.png" alt="Logo" class="logo-clear"></a>
+        <h1 class="page-title">Tools</h1>
+        <button id="navMenuBtn" class="nav-menu-btn" type="button" aria-label="Menu" aria-expanded="false">···</button>
+      </div>
       <div class="content">
-
-        <!-- TOP ROW -->
-        <div class="top-row">
-          <a class="nav-link" href="countdown.html" title="Countdown Clock" aria-label="Countdown Clock">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 15.5 15.5"/>
-            </svg>
-          </a>
-          <img class="school-logo" src="assets/SYVHS_Logo.svg" alt="SYVHS">
-          <div class="nav-spacer"></div>
+        <div class="header">
+          <p class="greeting" id="greetingText">Welcome</p>
         </div>
-
-        <!-- SEARCH BAR -->
-        <div class="search-container">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input
-            type="search" class="search-input" id="search-input"
-            placeholder="Search staff directory..."
-            autocomplete="off" autocorrect="off" spellcheck="false"
-          >
-          <button class="search-clear" id="search-clear" aria-label="Clear search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
+        <div class="primary-nav">
+          <a class="primary-btn nav-link" href="countdown.html"><span class="quick-link-icon">⏱</span><p class="quick-link-label">Countdown</p></a>
+          <a class="primary-btn nav-link" href="extension_search.html"><span class="quick-link-icon">🔍</span><p class="quick-link-label">Directory</p></a>
         </div>
-
-        <!-- TABS -->
-        <div class="tabs">
-          <button class="tab active" id="tab-links" onclick="switchTab('links')">Links</button>
-          <button class="tab" id="tab-directory" onclick="switchTab('directory')">Directory</button>
+        <p class="section-label">Quick Links</p>
+        <div class="quick-links-grid">
+          <a class="quick-link-btn" href="https://syvuhsd.instructure.com/" target="_blank"><span class="quick-link-icon">🎨</span><p class="quick-link-label">Canvas</p></a>
+          <a class="quick-link-btn" href="https://syvuhsd.aeries.net/teacher/Login.aspx" target="_blank"><span class="quick-link-icon">🎓</span><p class="quick-link-label">Aeries</p></a>
+          <a class="quick-link-btn" href="https://login.frontlineeducation.com/" target="_blank"><span class="quick-link-icon">📋</span><p class="quick-link-label">Absences</p></a>
+          <a class="quick-link-btn" href="https://m365.cloud.microsoft/apps/" target="_blank"><span class="quick-link-icon">📧</span><p class="quick-link-label">Outlook</p></a>
+          <a class="quick-link-btn" href="https://www.google.com/a/syvuhsd.org" target="_blank"><span class="quick-link-icon">📦</span><p class="quick-link-label">Google</p></a>
+          <a class="quick-link-btn" href="https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=1355412" target="_blank"><span class="quick-link-icon">📚</span><p class="quick-link-label">Staff Hub</p></a>
+          <a class="quick-link-btn" href="https://www.syvpirates.org/apps/events/" target="_blank"><span class="quick-link-icon">📅</span><p class="quick-link-label">Calendar</p></a>
+          <a class="quick-link-btn" href="https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058720&type=d&pREC_ID=1355396" target="_blank"><span class="quick-link-icon">🔔</span><p class="quick-link-label">Bell Schedule</p></a>
+          <a class="quick-link-btn" href="https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058719&type=d&pREC_ID=1355395" target="_blank"><span class="quick-link-icon">📄</span><p class="quick-link-label">Forms</p></a>
+          <a class="quick-link-btn" href="https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058717&type=d&pREC_ID=1355393" target="_blank"><span class="quick-link-icon">🏴‍☠️</span><p class="quick-link-label">Pirate News</p></a>
         </div>
+        <div class="daily-quote" id="dailyQuote">
+          <p class="daily-quote-text" id="quoteText"></p>
+          <p class="daily-quote-author" id="quoteAuthor"></p>
+        </div>
+        <div class="footer-note">By: CreativeSilva</div>
+      </div>
 
-        <!-- SCROLL PANE -->
-        <div class="scroll-pane">
-
-          <!-- LINKS VIEW -->
-          <div id="links-view">
-            <div id="links-container">
-              <div class="category-section">
-                <div class="category-label">Loading...</div>
+      <!-- MAINTENANCE MODAL -->
+      <div id="maintModal" class="maint-modal" hidden>
+        <div class="maint-backdrop" id="maintBackdrop"></div>
+        <div class="maint-dialog">
+          <div class="maint-header">
+            <div class="maint-title-row">
+              <span class="maint-title-icon">🔧</span>
+              <div>
+                <p class="maint-title">Maintenance</p>
+                <p class="maint-subtitle">Choose an option</p>
               </div>
             </div>
+            <button id="maintClose" class="maint-close" type="button">✕</button>
           </div>
-
-          <!-- DIRECTORY VIEW -->
-          <div id="directory-view">
-            <div id="dir-count" class="dir-count"></div>
-            <div id="dir-results" class="dir-results"></div>
+          <div class="maint-options">
+            <a class="maint-option" href="https://www.facilitron.com/accounts/signin/" target="_blank" id="maintReserveLink">
+              <div class="maint-option-icon maint-option-icon--reserve">🏫</div>
+              <div class="maint-option-text">
+                <p class="maint-option-label">Reserve a Space</p>
+                <p class="maint-option-desc">Book a room, gym, or facility for a class, event, or presentation.</p>
+              </div>
+              <span class="maint-option-arrow">›</span>
+            </a>
+            <a class="maint-option" href="https://maintenance.facilitron.com/anonymous/SantaMariaJUHSD/newworkorder" target="_blank" id="maintRepairLink">
+              <div class="maint-option-icon maint-option-icon--repair">🛠️</div>
+              <div class="maint-option-text">
+                <p class="maint-option-label">Request a Repair</p>
+                <p class="maint-option-desc">Submit a work order for a broken item, fixture, or facility issue.</p>
+              </div>
+              <span class="maint-option-arrow">›</span>
+            </a>
           </div>
+        </div>
+      </div>
 
-        </div><!-- /scroll-pane -->
+      <!-- NEWS CHOOSER (Current Events / Athletics) -->
+      <div id="newsChooser" class="news-chooser" hidden>
+        <div class="news-chooser-backdrop" id="newsChooserBackdrop"></div>
+        <div class="news-chooser-dialog">
+          <div class="maint-header">
+            <div class="maint-title-row">
+              <span class="maint-title-icon">📰</span>
+              <div>
+                <p class="maint-title">News</p>
+                <p class="maint-subtitle">Choose a category</p>
+              </div>
+            </div>
+            <button id="newsChooserClose" class="maint-close" type="button">✕</button>
+          </div>
+          <div class="maint-options">
+            <button class="maint-option" id="newsChooserEvents" type="button">
+              <div class="maint-option-icon news-chooser-icon--events">📢</div>
+              <div class="maint-option-text">
+                <p class="maint-option-label">Current Events</p>
+                <p class="maint-option-desc">Latest announcements and updates from ParentSquare.</p>
+              </div>
+              <span class="maint-option-arrow">›</span>
+            </button>
+            <button class="maint-option" id="newsChooserAthletics" type="button">
+              <div class="maint-option-icon news-chooser-icon--athletics">🏆</div>
+              <div class="maint-option-text">
+                <p class="maint-option-label">Athletics</p>
+                <p class="maint-option-desc">Spring 2026 sports schedules — baseball, softball, tennis, and more.</p>
+              </div>
+              <span class="maint-option-arrow">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-        <div class="footer">By: CreativeSilva &middot; SYVHS Tools</div>
-      </div><!-- /content -->
-    </div><!-- /app -->
-  </div><!-- /frame -->
+      <!-- NEWS FEED -->
+      <div id="newsModal" class="news-modal" hidden>
+        <img src="SY_Logo.png" alt="" class="news-ghost-logo">
+        <div class="news-top-row">
+          <a href="index.html" class="nav-link" aria-label="Home"><img src="SY_Logo.png" alt="Logo" class="logo-clear"></a>
+          <h1 class="news-page-title">News</h1>
+          <button id="newsClose" class="news-close" type="button" aria-label="Close">✕</button>
+        </div>
+        <div class="news-toggle" id="newsToggle">
+          <button class="news-toggle-btn is-active" id="toggleEvents" type="button">📢 Current Events</button>
+          <button class="news-toggle-btn" id="toggleAthletics" type="button">🏆 Athletics</button>
+        </div>
+        <div class="news-list" id="newsList">
+          <p class="news-updated" id="newsUpdated"></p>
+          <div class="news-feed" id="newsFeed">
+            <div class="news-loading">
+              <span class="news-loading-dot"></span>
+              <span class="news-loading-dot"></span>
+              <span class="news-loading-dot"></span>
+            </div>
+          </div>
+        </div>
+        <div class="news-detail" id="newsDetail">
+          <div class="news-detail-header">
+            <button class="news-back" id="newsBack" type="button">&#8592; Back</button>
+          </div>
+          <div class="news-detail-scroll" id="newsDetailScroll"></div>
+        </div>
 
-  <!-- Fuse.js for fuzzy search -->
-  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+        <!-- ATHLETICS DASHBOARD -->
+        <div class="athletics-view" id="athleticsView">
+          <div class="ath-tabs" id="athTabs">
+            <button class="ath-tab is-active" data-sport="all" type="button">All</button>
+            <button class="ath-tab" data-sport="baseball" type="button"><span class="ath-tab-emoji">⚾</span> Baseball</button>
+            <button class="ath-tab" data-sport="softball" type="button"><span class="ath-tab-emoji">🥎</span> Softball</button>
+            <button class="ath-tab" data-sport="volleyball" type="button"><span class="ath-tab-emoji">🏐</span> Volleyball</button>
+            <button class="ath-tab" data-sport="tennis" type="button"><span class="ath-tab-emoji">🎾</span> Tennis</button>
+            <button class="ath-tab" data-sport="golf" type="button"><span class="ath-tab-emoji">⛳</span> Golf</button>
+            <button class="ath-tab" data-sport="swim" type="button"><span class="ath-tab-emoji">🏊</span> Swim</button>
+            <button class="ath-tab" data-sport="track" type="button"><span class="ath-tab-emoji">🏃</span> Track</button>
+          </div>
+          <div class="ath-list" id="athList"></div>
+        </div>
+      </div>
+
+      <!-- IMAGE LIGHTBOX -->
+      <div id="newsLightbox" class="news-lightbox">
+        <img class="news-lightbox-img" id="newsLightboxImg" src="" alt="">
+        <button class="news-lightbox-close" id="newsLightboxClose" type="button">✕</button>
+      </div>
+
+      <!-- FEEDBACK MODAL -->
+      <div id="feedbackModal" class="feedback-modal" hidden>
+        <div class="feedback-modal-backdrop" id="feedbackBackdrop"></div>
+        <div class="feedback-dialog">
+          <div class="feedback-header">
+            <p class="feedback-title">💬 Share Feedback</p>
+            <button id="feedbackClose" class="feedback-close" type="button">✕</button>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">How's the app working for you?</p>
+            <div class="feedback-rating" id="feedbackRating">
+              <button class="feedback-rating-btn" data-val="1" type="button">😕</button>
+              <button class="feedback-rating-btn" data-val="2" type="button">😐</button>
+              <button class="feedback-rating-btn" data-val="3" type="button">🙂</button>
+              <button class="feedback-rating-btn" data-val="4" type="button">😊</button>
+              <button class="feedback-rating-btn" data-val="5" type="button">🤩</button>
+            </div>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">What's working well?</p>
+            <textarea id="feedbackGood" class="feedback-textarea" placeholder="I love that it shows…"></textarea>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">What would you add or change?</p>
+            <textarea id="feedbackImprove" class="feedback-textarea" placeholder="It would be great if…"></textarea>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">Your name (optional)</p>
+            <input id="feedbackName" class="feedback-input" type="text" placeholder="e.g. Ms. Johnson">
+          </div>
+          <button id="feedbackSubmit" class="feedback-submit" type="button">Send Feedback ✉️</button>
+          <p class="feedback-note">Your feedback is sent directly to the developer.</p>
+        </div>
+      </div>
+
+      <!-- NAV DROPDOWN -->
+      <div id="navMenu" class="nav-menu" role="menu">
+        <a href="countdown.html"       class="nav-menu-item nav-link" role="menuitem"><span class="nav-menu-icon">⏱</span>Countdown</a>
+        <a href="extension_search.html" class="nav-menu-item nav-link" role="menuitem"><span class="nav-menu-icon">🔍</span>Directory</a>
+        <div id="popoutMenuSep" class="nav-menu-sep"></div>
+        <button id="popoutBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon">🪟</span>Pop Out</button>
+        <div id="installMenuSep" class="nav-menu-sep"></div>
+        <button id="installBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon" id="installIcon">📲</span><span id="installLabel">Add to Home Screen</span></button>
+        <div class="nav-menu-sep"></div>
+        <button id="feedbackBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon">💬</span>Share Feedback</button>
+      </div>
+
+      <!-- DESKTOP INSTALL BANNER -->
+      <div id="installBanner" class="install-banner" hidden>
+        <div class="install-banner-inner">
+          <span class="install-banner-icon" id="installBannerIcon">🖥️</span>
+          <div class="install-banner-text">
+            <p class="install-banner-title" id="installBannerTitle">Pop Out SYVHS Tools</p>
+            <p class="install-banner-desc" id="installBannerDesc">Open in its own window — no tabs, no browser chrome. Like a real desktop app.</p>
+          </div>
+          <button id="installBannerBtn" class="install-banner-btn" type="button">Pop Out</button>
+          <button id="installBannerDismiss" class="install-banner-dismiss" type="button" aria-label="Dismiss">✕</button>
+        </div>
+      </div>
+
+      <!-- DESKTOP INSTALL MODAL -->
+      <div id="installModal" class="install-modal" hidden>
+        <div class="install-modal-backdrop" id="installModalBackdrop"></div>
+        <div class="install-modal-dialog">
+          <div class="install-modal-header">
+            <img src="SY_AppIcon.png" alt="" class="install-modal-appicon">
+            <div class="install-modal-titles">
+              <p class="install-modal-title">SYVHS Tools</p>
+              <p class="install-modal-sub">Install as Desktop App</p>
+            </div>
+            <button id="installModalClose" class="install-modal-close" type="button">✕</button>
+          </div>
+          <div id="installModalSteps" class="install-modal-steps"></div>
+          <button id="installModalCta" class="install-modal-cta" type="button" style="display:none">Install Now</button>
+          <p class="install-modal-note">Once installed, SYVHS Tools opens in its own window — no browser chrome, no tabs. Just the app.</p>
+        </div>
+      </div>
+
+      <!-- ADD TO HOME SCREEN PROMPT (mobile only, non-standalone) -->
+      <div id="a2hsPrompt" class="a2hs-prompt" hidden>
+        <div class="a2hs-inner">
+          <img src="SY_AppIcon.png" alt="SYVHS Tools" class="a2hs-icon">
+          <div class="a2hs-text">
+            <p class="a2hs-title">Install as App</p>
+            <p class="a2hs-desc" id="a2hsDesc">Tap <span class="a2hs-share">⬆ Share</span> then <strong style="color:#fff">"Add to Home Screen"</strong> for the full experience.</p>
+          </div>
+          <button id="a2hsDismiss" class="a2hs-dismiss" type="button" aria-label="Dismiss">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // ─── ICON LIBRARY ────────────────────────────────────────────────────────
-    const ICONS = {
-      clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 15.5 15.5"/></svg>`,
-      bulletin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/></svg>`,
-      bell: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`,
-      calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-      people: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
-      canvas: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>`,
-      grades: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
-      email: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
-      google: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
-      absence: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`,
-      portal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>`,
-      form: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>`,
-      wrench: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>`,
-      computer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
-      help: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-      shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-      book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`,
-      star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-      athletics: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M4.22 4.22l15.56 15.56"/><path d="M4.22 19.78L19.78 4.22"/></svg>`,
-      district: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-    };
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const isPopout = mode === 'popout';
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
-    function getIcon(name) {
-      return ICONS[name] || ICONS['form'];
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    function updateStandaloneViewportVars() {
+      if (!isStandalone) return;
+      const heightCandidates = [
+        window.innerHeight,
+        window.outerHeight,
+        window.visualViewport ? Math.round(window.visualViewport.height) : 0,
+        window.screen ? window.screen.height : 0,
+        window.screen ? window.screen.availHeight : 0
+      ].filter(Boolean);
+      const widthCandidates = [
+        window.innerWidth,
+        window.outerWidth,
+        window.visualViewport ? Math.round(window.visualViewport.width) : 0,
+        window.screen ? window.screen.width : 0,
+        window.screen ? window.screen.availWidth : 0
+      ].filter(Boolean);
+
+      const appHeight = Math.max(...heightCandidates);
+      const appWidth = Math.max(...widthCandidates);
+
+      document.documentElement.style.setProperty('--standalone-app-height', `${appHeight}px`);
+      document.documentElement.style.setProperty('--standalone-app-width', `${appWidth}px`);
     }
 
-    // ─── STAFF DATA & FUSE ───────────────────────────────────────────────────
-    let fuseInstance = null;
-    let allStaff = [];
-    let staffData = null;
+    if (isStandalone) {
+      document.body.classList.add('is-standalone');
+      updateStandaloneViewportVars();
+      window.addEventListener('resize', updateStandaloneViewportVars);
+      window.addEventListener('orientationchange', updateStandaloneViewportVars);
+      window.addEventListener('pageshow', updateStandaloneViewportVars);
+      window.visualViewport?.addEventListener('resize', updateStandaloneViewportVars);
+      setTimeout(updateStandaloneViewportVars, 250);
+      setTimeout(updateStandaloneViewportVars, 800);
+    }
 
-    fetch('assets/syvhs_staff.json')
-      .then(r => r.json())
-      .then(data => {
-        staffData = data;
-        // Flatten all sections, tagging each with section name
-        Object.entries(data.sections).forEach(([section, members]) => {
-          members.forEach(m => allStaff.push({ ...m, _section: section }));
-        });
-        fuseInstance = new Fuse(allStaff, {
-          keys: [
-            { name: 'name',  weight: 0.55 },
-            { name: 'role',  weight: 0.30 },
-            { name: 'email', weight: 0.15 }
-          ],
-          threshold: 0.4,
-          includeScore: true,
-          minMatchCharLength: 2,
-          ignoreLocation: true,
-        });
-        // Render initial directory (all staff)
-        renderDirectory('');
-      })
-      .catch(() => {
-        document.getElementById('dir-results').innerHTML =
-          '<div class="dir-empty">Unable to load staff directory.</div>';
+    if (isPopout) {
+      document.body.classList.add('is-popout');
+      // hide pop-out item when already in popout window
+      document.getElementById('popoutBtn')?.remove();
+      document.getElementById('popoutMenuSep')?.remove();
+      navLinks.forEach(link => {
+        const url = new URL(link.href, window.location.origin);
+        url.searchParams.set('mode', 'popout');
+        link.href = url.toString();
       });
+    } else if (isStandalone || isMobile) {
+      // hide pop-out on mobile/standalone (no windowing)
+      document.getElementById('popoutBtn')?.remove();
+      document.getElementById('popoutMenuSep')?.remove();
+    }
 
-    // ─── LINKS DATA ───────────────────────────────────────────────────────────
-    fetch('assets/links.json')
-      .then(r => r.json())
-      .then(data => renderLinks(data))
-      .catch(() => {
-        document.getElementById('links-container').innerHTML =
-          '<div style="color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px 0;">Unable to load links.</div>';
-      });
+    // NAV MENU
+    const navMenuBtn = document.getElementById('navMenuBtn');
+    const navMenu    = document.getElementById('navMenu');
+    function positionNavMenu() {
+      if (!navMenuBtn || !navMenu) return;
+      const r = navMenuBtn.getBoundingClientRect();
+      navMenu.style.top   = `${r.bottom + 6}px`;
+      navMenu.style.right = `${window.innerWidth - r.right}px`;
+    }
+    navMenuBtn?.addEventListener('click', e => {
+      e.stopPropagation();
+      positionNavMenu();
+      const open = navMenu.classList.toggle('is-open');
+      navMenuBtn.classList.toggle('is-open', open);
+      navMenuBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', () => {
+      navMenu?.classList.remove('is-open');
+      navMenuBtn?.classList.remove('is-open');
+    });
+    navMenu?.addEventListener('click', e => e.stopPropagation());
 
-    function renderLinks(data) {
-      const container = document.getElementById('links-container');
-      container.innerHTML = '';
-      data.categories.forEach(cat => {
-        const section = document.createElement('div');
-        section.className = 'category-section';
-        const label = document.createElement('div');
-        label.className = 'category-label';
-        label.textContent = cat.label;
-        section.appendChild(label);
-
-        const grid = document.createElement('div');
-        grid.className = 'link-grid';
-
-        cat.links.forEach(link => {
-          const tile = document.createElement('a');
-          tile.className = 'link-tile' + (link.internal ? ' internal' : '');
-          tile.href = link.href;
-          if (!link.internal) tile.target = '_blank';
-          tile.rel = 'noopener noreferrer';
-
-          const iconWrap = document.createElement('div');
-          iconWrap.className = 'tile-icon';
-          iconWrap.innerHTML = getIcon(link.icon);
-
-          const lbl = document.createElement('div');
-          lbl.className = 'tile-label';
-          lbl.textContent = link.label;
-
-          tile.appendChild(iconWrap);
-          tile.appendChild(lbl);
-          grid.appendChild(tile);
+    // Keep internal navigation inside the installed app.
+    if (isStandalone) {
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const nextHref = link.getAttribute('href');
+          if (nextHref) window.location.assign(nextHref);
         });
-
-        section.appendChild(grid);
-        container.appendChild(section);
       });
     }
 
-    // ─── DIRECTORY RENDER ────────────────────────────────────────────────────
-    function renderDirectory(query) {
-      const countEl = document.getElementById('dir-count');
-      const resultsEl = document.getElementById('dir-results');
+    const hours = new Date().getHours();
+    let greet = "Good Morning";
+    if (hours >= 21 || hours < 5) {
+      greet = "Good Night";
+    } else if (hours < 12) {
+      greet = "Good Morning";
+    } else if (hours < 17) {
+      greet = "Good Afternoon";
+    } else {
+      greet = "Good Evening";
+    }
+    document.getElementById('greetingText').textContent = greet;
 
-      if (!staffData) return;
+    document.getElementById("popoutBtn")?.addEventListener("click", () => {
+      navMenu?.classList.remove('is-open');
+      navMenuBtn?.classList.remove('is-open');
+      window.open('index.html?mode=popout', 'syvTools', 'width=450,height=900,resizable=yes,scrollbars=no');
+    });
 
-      let grouped = {};
+    // ── MAINTENANCE MODAL ───────────────────────────────────────
+    (function() {
+      function openMaint()  { document.getElementById('maintModal').hidden = false; }
+      function closeMaint() { document.getElementById('maintModal').hidden = true;  }
+      document.getElementById('maintBtn')?.addEventListener('click', openMaint);
+      document.getElementById('maintClose')?.addEventListener('click', closeMaint);
+      document.getElementById('maintBackdrop')?.addEventListener('click', closeMaint);
+      // Close modal when either link is tapped (they open in new tab)
+      document.getElementById('maintReserveLink')?.addEventListener('click', closeMaint);
+      document.getElementById('maintRepairLink')?.addEventListener('click', closeMaint);
+    })();
 
-      if (!query || query.trim().length < 2) {
-        // Show all, grouped by section
-        Object.entries(staffData.sections).forEach(([section, members]) => {
-          grouped[section] = members;
+    // ── FEEDBACK MODAL ──────────────────────────────────────────
+    (function() {
+      let selectedRating = 0;
+      function openFeedback() {
+        document.getElementById('feedbackModal').hidden = false;
+      }
+      function closeFeedback() {
+        document.getElementById('feedbackModal').hidden = true;
+      }
+      document.getElementById('feedbackBtn')?.addEventListener('click', () => {
+        navMenu?.classList.remove('is-open');
+        navMenuBtn?.classList.remove('is-open');
+        openFeedback();
+      });
+      document.getElementById('feedbackClose')?.addEventListener('click', closeFeedback);
+      document.getElementById('feedbackBackdrop')?.addEventListener('click', closeFeedback);
+      document.querySelectorAll('.feedback-rating-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedRating = Number(btn.dataset.val);
+          document.querySelectorAll('.feedback-rating-btn').forEach(b => b.classList.toggle('is-selected', b === btn));
         });
-      } else {
-        const results = fuseInstance.search(query.trim());
-        if (!results.length) {
-          countEl.textContent = '0 results';
-          resultsEl.innerHTML = '<div class="dir-empty">No staff found. Try a different spelling.</div>';
+      });
+      document.getElementById('feedbackSubmit')?.addEventListener('click', () => {
+        const submitBtn = document.getElementById('feedbackSubmit');
+        const ratingLabels = ['','😕 Needs Work','😐 It\'s OK','🙂 Pretty Good','😊 Love It','🤩 Amazing!'];
+        const rating   = selectedRating ? ratingLabels[selectedRating] : 'Not rated';
+        const good     = document.getElementById('feedbackGood')?.value.trim()    || '(none)';
+        const improve  = document.getElementById('feedbackImprove')?.value.trim() || '(none)';
+        const name     = document.getElementById('feedbackName')?.value.trim()    || 'Anonymous';
+        const page     = document.title || 'Unknown Page';
+        const message  =
+          `[SYVHS] Santa Ynez Valley Union High School\n` +
+          `Rating: ${rating}\n` +
+          `Page: ${page}\n\n` +
+          `What's working well:\n${good}\n\n` +
+          `What to add or change:\n${improve}`;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        emailjs.send('service_4mhkbik', 'template_fd0suj3', {
+          name: '[SYVHS] ' + name,
+          message: message,
+          rating: rating,
+        }).then(() => {
+          submitBtn.textContent = '✅ Sent! Thank you!';
+          submitBtn.style.background = '#2e7d32';
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Feedback ✉️';
+            submitBtn.style.background = '';
+            closeFeedback();
+            selectedRating = 0;
+            document.querySelectorAll('.feedback-rating-btn').forEach(b => b.classList.remove('is-selected'));
+            document.getElementById('feedbackGood').value = '';
+            document.getElementById('feedbackImprove').value = '';
+            document.getElementById('feedbackName').value = '';
+          }, 2000);
+        }).catch((err) => {
+          console.error('EmailJS error:', err);
+          submitBtn.textContent = '❌ Error, try again';
+          submitBtn.style.background = '#c62828';
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Feedback ✉️';
+            submitBtn.style.background = '';
+          }, 3000);
+        });
+      });
+    })();
+
+    // ── ADD TO HOME SCREEN PROMPT ──────────────────────────────
+    const a2hsPrompt   = document.getElementById('a2hsPrompt');
+    const a2hsDismiss  = document.getElementById('a2hsDismiss');
+    const a2hsDesc     = document.getElementById('a2hsDesc');
+    const isIOS        = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid    = /Android/i.test(navigator.userAgent);
+    const a2hsSeen     = localStorage.getItem('syvhs_a2hs_seen');
+
+    if (isMobile && !isStandalone && !isPopout && !a2hsSeen && a2hsPrompt) {
+      // Tailor message per platform
+      if (isAndroid && a2hsDesc) {
+        a2hsDesc.innerHTML = 'Tap <strong style="color:#fff">⋮ Menu</strong> in your browser then <strong style="color:#fff">"Add to Home Screen"</strong> for the full app experience.';
+      }
+      a2hsPrompt.hidden = false;
+      setTimeout(() => a2hsPrompt.classList.add('is-visible'), 1800);
+      a2hsDismiss?.addEventListener('click', () => {
+        a2hsPrompt.classList.remove('is-visible');
+        localStorage.setItem('syvhs_a2hs_seen', '1');
+        setTimeout(() => { a2hsPrompt.hidden = true; }, 500);
+      });
+    }
+    // ── DESKTOP INSTALL SYSTEM ─────────────────────────────────
+    (function() {
+      if (isStandalone || isPopout) {
+        document.getElementById('installBtn')?.remove();
+        document.getElementById('installMenuSep')?.remove();
+        return;
+      }
+
+      const ua        = navigator.userAgent;
+      const isChrome  = /Chrome/.test(ua) && !/Edg|OPR/.test(ua);
+      const isEdge    = /Edg\//.test(ua);
+      const isSafari  = /Safari/.test(ua) && !/Chrome/.test(ua);
+      const isFirefox = /Firefox/.test(ua);
+      const isMacOS   = /Macintosh/.test(ua);
+      const isWin     = /Windows/.test(ua);
+      const installSeen = localStorage.getItem('syvhs_install_seen');
+
+      let deferredPrompt = null;
+
+      // Desktop: update install button label & icon
+      if (!isMobile) {
+        const installIcon = document.getElementById('installIcon');
+        const installLabel = document.getElementById('installLabel');
+        if (installIcon) installIcon.textContent = '🖥️';
+        if (installLabel) installLabel.textContent = isMacOS ? 'Add to Dock' : 'Add to Taskbar';
+      }
+
+      // Step definitions per browser
+      function getSteps() {
+        if (isChrome || isEdge) {
+          return [
+            { n:1, html: `Click the <strong>install icon ⊕</strong> in your browser's address bar (top right)` },
+            { n:2, html: `Click <strong>"Install"</strong> in the popup — that's it!` },
+            { n:3, html: `SYVHS Tools will open in its own window and appear in your <strong>${isMacOS ? 'Dock & Applications' : 'Taskbar & Start Menu'}</strong>` }
+          ];
+        }
+        if (isSafari && isMacOS) {
+          return [
+            { n:1, html: `In the Safari menu bar, click <strong>File</strong>` },
+            { n:2, html: `Choose <strong>"Add to Dock…"</strong>` },
+            { n:3, html: `Click <strong>Add</strong> — SYVHS Tools will appear in your Dock like a real app` },
+            { n:4, html: `<em style="color:#ffa76e">Requires macOS Sonoma (14) or later</em>` }
+          ];
+        }
+        if (isFirefox) {
+          return [
+            { n:1, html: `Firefox doesn't support app installation` },
+            { n:2, html: `For the best experience, open this page in <strong>Chrome</strong> or <strong>Edge</strong>` },
+            { n:3, html: `Then click the install icon in the address bar` }
+          ];
+        }
+        return [
+          { n:1, html: `Open SYVHS Tools in <strong>Chrome</strong> or <strong>Edge</strong>` },
+          { n:2, html: `Click the <strong>install icon ⊕</strong> in the address bar` },
+          { n:3, html: `Click <strong>Install</strong> to add it to your ${isMacOS ? 'Dock' : 'Taskbar'}` }
+        ];
+      }
+
+      function buildModal() {
+        const container = document.getElementById('installModalSteps');
+        const cta = document.getElementById('installModalCta');
+        if (!container) return;
+        container.innerHTML = '';
+        getSteps().forEach(s => {
+          const div = document.createElement('div');
+          div.className = 'install-step';
+          div.innerHTML = `<span class="install-step-num">${s.n}</span><p class="install-step-text">${s.html}</p>`;
+          container.appendChild(div);
+        });
+        if ((isChrome || isEdge) && deferredPrompt && cta) {
+          cta.style.display = 'block';
+        }
+      }
+
+      function openModal() {
+        buildModal();
+        const modal = document.getElementById('installModal');
+        if (modal) modal.hidden = false;
+      }
+      function closeModal() {
+        const modal = document.getElementById('installModal');
+        if (modal) modal.hidden = true;
+      }
+
+      // Banner desc text
+      const bannerDesc = document.getElementById('installBannerDesc');
+      if (bannerDesc) {
+        if (isChrome || isEdge) bannerDesc.textContent = 'One click to install — works like a real app on your ' + (isMacOS ? 'Mac' : 'PC') + '.';
+        else if (isSafari)      bannerDesc.textContent = 'Add to your Dock for instant access — no browser needed.';
+        else                    bannerDesc.textContent = 'Open in Chrome or Edge to install as a desktop app.';
+      }
+
+      // Show banner for desktop non-standalone users who haven't dismissed
+      const showBanner = !isMobile && !installSeen;
+
+      function showInstallBanner() {
+        const banner = document.getElementById('installBanner');
+        if (!banner || !showBanner) return;
+        banner.hidden = false;
+        setTimeout(() => banner.classList.add('is-visible'), 800);
+      }
+
+      // Wire up beforeinstallprompt (Chrome/Edge)
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallBanner();
+      });
+
+      // On Safari/Firefox desktop also show banner
+      if (!isMobile && !installSeen && (isSafari || isFirefox)) {
+        setTimeout(showInstallBanner, 800);
+      }
+
+      // Desktop banner promotes Pop Out first, then install
+      const popoutSeen = localStorage.getItem('syvhs_popout_seen');
+      const bannerBtn = document.getElementById('installBannerBtn');
+      const bannerTitle = document.getElementById('installBannerTitle');
+      const bannerIcon = document.getElementById('installBannerIcon');
+
+      if (popoutSeen && !installSeen) {
+        // Already saw popout promo — switch to install promo
+        if (bannerTitle) bannerTitle.textContent = 'Install SYVHS Tools';
+        if (bannerIcon) bannerIcon.textContent = '🖥️';
+        if (bannerBtn) bannerBtn.textContent = 'Install';
+        if (bannerDesc) bannerDesc.textContent = isMacOS ? 'Add to your Dock for instant access.' : 'Pin to your Taskbar for instant access.';
+      }
+
+      bannerBtn?.addEventListener('click', () => {
+        if (!popoutSeen) {
+          // Pop out action
+          localStorage.setItem('syvhs_popout_seen', '1');
+          document.getElementById('installBanner')?.classList.remove('is-visible');
+          window.open('index.html?mode=popout', 'syvTools', 'width=450,height=900,resizable=yes,scrollbars=no');
+        } else if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+          localStorage.setItem('syvhs_install_seen', '1');
+          document.getElementById('installBanner')?.classList.remove('is-visible');
+        } else {
+          openModal();
+        }
+      });
+
+      // Banner dismiss
+      document.getElementById('installBannerDismiss')?.addEventListener('click', () => {
+        document.getElementById('installBanner')?.classList.remove('is-visible');
+        localStorage.setItem('syvhs_install_seen', '1');
+      });
+
+      // Modal close
+      document.getElementById('installModalClose')?.addEventListener('click', closeModal);
+      document.getElementById('installModalBackdrop')?.addEventListener('click', closeModal);
+
+      // Modal CTA (Chrome/Edge one-click install)
+      document.getElementById('installModalCta')?.addEventListener('click', () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(() => { deferredPrompt = null; closeModal(); });
+          localStorage.setItem('syvhs_install_seen', '1');
+        }
+      });
+
+      // Nav menu install button
+      const navBtn = document.getElementById('installBtn');
+      const navSep = document.getElementById('installMenuSep');
+      if (navBtn) {
+        navBtn.addEventListener('click', () => {
+          navMenu?.classList.remove('is-open');
+          navMenuBtn?.classList.remove('is-open');
+          if (isMobile) {
+            const prompt = document.getElementById('a2hsPrompt');
+            if (prompt) { prompt.hidden = false; setTimeout(() => prompt.classList.add('is-visible'), 10); }
+          } else if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+          } else {
+            openModal();
+          }
+        });
+      }
+    })();
+
+    // ── NEWS CHOOSER ────────────────────────────────────────────
+    (function() {
+      const newsChooser = document.getElementById('newsChooser');
+      function openChooser() { if (newsChooser) newsChooser.hidden = false; }
+      function closeChooser() { if (newsChooser) newsChooser.hidden = true; }
+      // News button goes straight to Current Events (toggle inside modal handles switching)
+      document.getElementById('newsBtn')?.addEventListener('click', function() { openNewsModal('events'); });
+      document.getElementById('newsMenuBtn')?.addEventListener('click', function() {
+        navMenu?.classList.remove('is-open');
+        navMenuBtn?.classList.remove('is-open');
+        openNewsModal('events');
+      });
+      document.getElementById('newsChooserClose')?.addEventListener('click', closeChooser);
+      document.getElementById('newsChooserBackdrop')?.addEventListener('click', closeChooser);
+
+      // Auto-open news when arriving via #news hash
+      if (window.location.hash === '#news') {
+        openNewsModal('events');
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+
+      // ── NEWS FEED ──
+      const newsModal   = document.getElementById('newsModal');
+      const newsFeed    = document.getElementById('newsFeed');
+      const newsUpdated = document.getElementById('newsUpdated');
+      const newsList    = document.getElementById('newsList');
+      const newsDetail  = document.getElementById('newsDetail');
+      const newsDetailScroll = document.getElementById('newsDetailScroll');
+      const athleticsView = document.getElementById('athleticsView');
+      let postsData = [];
+      let newsMode = 'events'; // 'events' or 'athletics'
+
+      function openNewsModal(mode) {
+        closeChooser();
+        newsMode = mode;
+        if (newsModal) newsModal.hidden = false;
+        updateToggle(mode);
+        if (mode === 'athletics') {
+          newsList.classList.add('is-hidden');
+          newsDetail.classList.remove('is-active');
+          athleticsView.classList.add('is-active');
+          renderAthletics();
+          checkAthGameDay();
+        } else {
+          athleticsView.classList.remove('is-active');
+          showList();
+          loadNews();
+        }
+        document.getElementById('newsToggle').style.display = '';
+      }
+      function closeNews() {
+        if (newsModal) newsModal.hidden = true;
+        athleticsView.classList.remove('is-active');
+        showList();
+      }
+
+      // Toggle bar inside news modal
+      const toggleEventsBtn = document.getElementById('toggleEvents');
+      const toggleAthleticsBtn = document.getElementById('toggleAthletics');
+      function updateToggle(mode) {
+        if (mode === 'athletics') {
+          toggleAthleticsBtn.classList.add('is-active');
+          toggleEventsBtn.classList.remove('is-active');
+        } else {
+          toggleEventsBtn.classList.add('is-active');
+          toggleAthleticsBtn.classList.remove('is-active');
+        }
+      }
+      toggleEventsBtn?.addEventListener('click', function() { openNewsModal('events'); });
+      toggleAthleticsBtn?.addEventListener('click', function() { openNewsModal('athletics'); });
+
+      document.getElementById('newsChooserEvents')?.addEventListener('click', function() { openNewsModal('events'); });
+      document.getElementById('newsChooserAthletics')?.addEventListener('click', function() { openNewsModal('athletics'); });
+      document.getElementById('newsClose')?.addEventListener('click', closeNews);
+      document.getElementById('newsBack')?.addEventListener('click', showList);
+
+      function showList() {
+        newsList.classList.remove('is-hidden');
+        newsDetail.classList.remove('is-active');
+        newsDetailScroll.innerHTML = '';
+        document.getElementById('newsToggle').style.display = '';
+      }
+
+      /* ── IMAGE LIGHTBOX ── */
+      var lightbox = document.getElementById('newsLightbox');
+      var lightboxImg = document.getElementById('newsLightboxImg');
+      var lightboxClose = document.getElementById('newsLightboxClose');
+
+      function openLightbox(src) {
+        lightboxImg.src = src;
+        lightbox.classList.add('is-open');
+      }
+      function closeLightbox() {
+        lightbox.classList.remove('is-open');
+        setTimeout(function() { lightboxImg.src = ''; }, 200);
+      }
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox) closeLightbox();
+      });
+
+      newsDetailScroll.addEventListener('click', function(e) {
+        if (e.target.classList.contains('news-detail-img') || e.target.classList.contains('news-detail-img-inline')) {
+          openLightbox(e.target.src);
+        }
+      });
+
+      /* Also handle card thumbnail taps in the feed list */
+      newsFeed.addEventListener('click', function(e) {
+        if (e.target.classList.contains('news-card-thumb')) {
+          e.stopPropagation();
+          openLightbox(e.target.src);
+        }
+      });
+
+      function makeBodySafe(html) {
+        // Ensure all links open in new tab and never navigate away
+        return html.replace(/<a /gi, '<a target="_blank" rel="noopener noreferrer" ');
+      }
+
+      function showDetail(post) {
+        document.getElementById('newsToggle').style.display = 'none';
+        var bodyHtml = post.body ? makeBodySafe(post.body) : ('<p>' + (post.summary || '') + '</p>');
+        // Inject images inline within the body text for natural reading flow
+        if (post.images && post.images.length > 0) {
+          var parser = new DOMParser();
+          var doc = parser.parseFromString('<div>' + bodyHtml + '</div>', 'text/html');
+          var container = doc.body.firstChild;
+          var paras = container.querySelectorAll('p, div, li, h1, h2, h3, h4, br');
+          var insertPoints = paras.length > 0 ? Array.from(paras) : [];
+          post.images.forEach(function(src, i) {
+            var img = doc.createElement('img');
+            img.className = 'news-detail-img-inline';
+            img.src = src;
+            img.alt = '';
+            img.loading = 'lazy';
+            // Distribute images evenly through the body
+            if (insertPoints.length > 1) {
+              var idx = Math.min(Math.floor((i + 1) * insertPoints.length / (post.images.length + 1)), insertPoints.length - 1);
+              var target = insertPoints[idx];
+              target.parentNode.insertBefore(img, target);
+            } else {
+              // If few paragraphs, prepend to the body
+              container.insertBefore(img, container.firstChild);
+            }
+          });
+          bodyHtml = container.innerHTML;
+        }
+        var pinHtml = post.pinned ? '<span class="news-card-pin" style="margin-left:6px;">Important</span>' : '';
+        newsDetailScroll.innerHTML =
+          '<div class="news-detail-meta">' +
+            '<span class="news-detail-date">' + formatDate(post.date) + '</span>' +
+            pinHtml +
+            '<span class="news-detail-divider"></span>' +
+            '<span class="news-detail-author">' + (post.author || '') + '</span>' +
+          '</div>' +
+          '<h2 class="news-detail-title">' + (post.title || 'Untitled Post') + '</h2>' +
+          '<div class="news-detail-body">' + bodyHtml + '</div>' +
+          (post.url ? '<a class="news-ps-link" href="' + post.url + '" target="_blank" rel="noopener noreferrer">See in ParentSquare ↗</a>' : '');
+        newsDetailScroll.scrollTop = 0;
+        newsList.classList.add('is-hidden');
+        newsDetail.classList.add('is-active');
+        document.getElementById('newsToggle').style.display = 'none';
+      }
+
+      function formatDate(dateStr) {
+        try {
+          var d = new Date(dateStr + 'T00:00:00');
+          return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } catch(e) { return dateStr; }
+      }
+
+      function formatUpdated(ts) {
+        try {
+          var d = new Date(ts);
+          return 'Updated ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+            ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        } catch(e) { return ''; }
+      }
+
+      function renderPosts(data) {
+        if (!newsFeed) return;
+        if (!data || !data.posts || data.posts.length === 0) {
+          newsFeed.innerHTML =
+            '<div class="news-empty">' +
+              '<span class="news-empty-icon">📭</span>' +
+              '<p class="news-empty-text">No news yet. Check back soon.</p>' +
+            '</div>';
           return;
         }
-        results.forEach(r => {
-          const s = r.item._section;
-          if (!grouped[s]) grouped[s] = [];
-          grouped[s].push(r.item);
+        postsData = data.posts;
+        if (newsUpdated && data.last_updated) {
+          newsUpdated.textContent = formatUpdated(data.last_updated);
+        }
+        newsFeed.innerHTML = data.posts.map(function(post, idx) {
+          var pinHtml = post.pinned ? '<span class="news-card-pin">Important</span>' : '';
+          var hasImages = post.images && post.images.length > 0;
+          var thumbHtml = hasImages
+            ? '<img class="news-card-thumb" src="' + post.images[0] + '" alt="" loading="lazy">'
+            : '';
+          return (
+            '<div class="news-card" data-idx="' + idx + '">' +
+              '<div class="news-card-top">' +
+                '<p class="news-card-date">' + formatDate(post.date) + '</p>' +
+                pinHtml +
+              '</div>' +
+              '<p class="news-card-title">' + (post.title || 'Untitled Post') + '</p>' +
+              '<p class="news-card-summary">' + (post.summary || '') + '</p>' +
+              (thumbHtml ? '<div class="news-card-thumb-wrap">' + thumbHtml + '</div>' : '') +
+              '<p class="news-card-author">' + (post.author || '') + '</p>' +
+            '</div>'
+          );
+        }).join('');
+        newsFeed.querySelectorAll('.news-card').forEach(function(card) {
+          card.addEventListener('click', function() {
+            var idx = parseInt(card.getAttribute('data-idx'));
+            if (postsData[idx]) showDetail(postsData[idx]);
+          });
         });
-        const total = results.length;
-        countEl.textContent = total + ' result' + (total !== 1 ? 's' : '');
       }
 
-      if (!query || query.trim().length < 2) {
-        const total = allStaff.length;
-        countEl.textContent = total + ' staff members';
+      function loadNews() {
+        newsFeed.innerHTML =
+          '<div class="news-loading">' +
+            '<span class="news-loading-dot"></span>' +
+            '<span class="news-loading-dot"></span>' +
+            '<span class="news-loading-dot"></span>' +
+          '</div>';
+        fetch('src/data/news.json?t=' + Date.now())
+          .then(function(r) { return r.json(); })
+          .then(renderPosts)
+          .catch(function() {
+            newsFeed.innerHTML =
+              '<div class="news-empty">' +
+                '<span class="news-empty-icon">📭</span>' +
+                '<p class="news-empty-text">Could not load news. Try again later.</p>' +
+              '</div>';
+          });
       }
 
-      resultsEl.innerHTML = '';
+      // ── ATHLETICS DASHBOARD DATA & LOGIC ─────────────────────────
+      const ATH = [
+        // ── BASEBALL VAR/JV ──
+        {sport:"baseball",emoji:"⚾",opponent:"Cesar Chavez",date:"2026-02-27",time:"2:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Cesar Chavez",date:"2026-02-27",time:"2:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Monache",date:"2026-02-28",time:"11:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"San Luis Obispo",date:"2026-02-28",time:"2:00",location:"SLO HS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Dinuba",date:"2026-03-03",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Cabrillo",date:"2026-03-03",time:"5:00",location:"Cabrillo HS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Sierra",date:"2026-03-05",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Golden West (Visalia)",date:"2026-03-06",time:"3:30",location:"Golden West HS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Golden West (Visalia)",date:"2026-03-06",time:"3:30",location:"Golden West HS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Cabrillo",date:"2026-03-10",time:"4:00",location:"Cabrillo HS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Cabrillo",date:"2026-03-10",time:"4:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Maria",date:"2026-03-12",time:"4:30",location:"SMHS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Maria",date:"2026-03-12",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Mission Prep",date:"2026-03-17",time:"6:00",location:"MPHS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Ynez",date:"2026-03-19",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Ynez",date:"2026-03-19",time:"4:30",location:"SYHS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Bishop Diego",date:"2026-03-20",time:"4:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Taft",date:"2026-03-24",time:"4:00",location:"THS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Taft",date:"2026-03-24",time:"4:00",location:"THS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-03-26",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-03-26",time:"4:30",location:"NHS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Maria",date:"2026-03-31",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Maria",date:"2026-03-31",time:"4:30",location:"SMHS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Maria",date:"2026-04-02",time:"4:30",location:"SMHS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Maria",date:"2026-04-02",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Village Christian",date:"2026-04-07",time:"1:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"University Prep",date:"2026-04-08",time:"1:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Cathedral",date:"2026-04-09",time:"1:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"St. Francis",date:"2026-04-10",time:"10:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"SLO Classical",date:"2026-04-13",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Paso Robles",date:"2026-04-14",time:"4:30",location:"PRHS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Bishop Diego",date:"2026-04-15",time:"4:00",location:"BDHS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Mission Prep",date:"2026-04-16",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Ynez",date:"2026-04-21",time:"4:30",location:"SYHS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Ynez",date:"2026-04-21",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Ynez",date:"2026-04-23",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Ynez",date:"2026-04-23",time:"4:30",location:"SYHS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Atascadero",date:"2026-04-28",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Atascadero",date:"2026-04-28",time:"4:30",location:"AHS",level:"JV",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Atascadero",date:"2026-04-30",time:"4:30",location:"AHS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Atascadero",date:"2026-04-30",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-05-03",time:"4:30",location:"NHS",level:"Varsity",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-05-03",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-05-07",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-05-07",time:"4:30",location:"NHS",level:"JV",home:false},
+        // ── FROSH BASEBALL ──
+        {sport:"baseball",emoji:"⚾",opponent:"Santa Maria",date:"2026-03-10",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Righetti",date:"2026-03-13",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Atascadero",date:"2026-03-17",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"San Luis Obispo",date:"2026-03-20",time:"4:30",location:"SLO HS",level:"Frosh",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Arroyo Grande",date:"2026-03-24",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Righetti",date:"2026-03-31",time:"4:30",location:"RHS",level:"Frosh",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Righetti",date:"2026-04-03",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Atascadero",date:"2026-04-14",time:"4:30",location:"AHS",level:"Frosh",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Atascadero",date:"2026-04-17",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"San Luis Obispo",date:"2026-04-21",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"San Luis Obispo",date:"2026-04-24",time:"4:30",location:"SLO HS",level:"Frosh",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Arroyo Grande",date:"2026-04-28",time:"4:30",location:"AGHS",level:"Frosh",home:false},
+        {sport:"baseball",emoji:"⚾",opponent:"Arroyo Grande",date:"2026-05-01",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-05-05",time:"4:30",location:"SYVHS",level:"Frosh",home:true},
+        {sport:"baseball",emoji:"⚾",opponent:"Nipomo",date:"2026-05-08",time:"4:30",location:"NHS",level:"Frosh",home:false},
+        // ── SOFTBALL ──
+        {sport:"softball",emoji:"🥎",opponent:"Lompoc",date:"2026-02-24",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Lompoc",date:"2026-02-24",time:"3:30",location:"Lompoc",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Atascadero",date:"2026-02-26",time:"3:30",location:"Atascadero",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Atascadero",date:"2026-02-26",time:"3:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Mission Prep",date:"2026-03-03",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Santa Maria",date:"2026-03-04",time:"3:30",location:"Santa Maria",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Arroyo Grande",date:"2026-03-05",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Arroyo Grande",date:"2026-03-05",time:"3:30",location:"Arroyo Grande",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Nipomo",date:"2026-03-12",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Nipomo",date:"2026-03-12",time:"4:30",location:"Nipomo",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Orcutt Academy",date:"2026-03-19",time:"4:30",location:"Lakeview",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Orcutt Academy",date:"2026-03-19",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Driller Tournament",date:"2026-03-20",time:"TBA",location:"Bakersfield",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Paso Robles",date:"2026-03-24",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Paso Robles",date:"2026-03-24",time:"4:30",location:"Paso Robles",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Cabrillo",date:"2026-03-26",time:"4:30",location:"Cabrillo",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Cabrillo",date:"2026-03-27",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Nipomo",date:"2026-03-31",time:"4:30",location:"Nipomo",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Nipomo",date:"2026-03-31",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Best of the West Tournament",date:"2026-04-09",time:"TBA",location:"TBA",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Orcutt Academy",date:"2026-04-14",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Orcutt Academy",date:"2026-04-14",time:"4:30",location:"Lakeview",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Paso Robles",date:"2026-04-16",time:"4:30",location:"Paso Robles",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Paso Robles",date:"2026-04-16",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Cabrillo",date:"2026-04-21",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Cabrillo",date:"2026-04-22",time:"4:30",location:"Cabrillo",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Nipomo",date:"2026-04-23",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Nipomo",date:"2026-04-23",time:"4:30",location:"Nipomo",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Orcutt Academy",date:"2026-04-30",time:"4:30",location:"Lakeview",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Orcutt Academy",date:"2026-04-30",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Paso Robles",date:"2026-05-05",time:"4:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"softball",emoji:"🥎",opponent:"Paso Robles",date:"2026-05-05",time:"4:30",location:"Paso Robles",level:"JV",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Cabrillo",date:"2026-05-07",time:"4:30",location:"Cabrillo",level:"Varsity",home:false},
+        {sport:"softball",emoji:"🥎",opponent:"Cabrillo",date:"2026-05-08",time:"4:30",location:"SYVHS",level:"JV",home:true},
+        // ── MEN'S VOLLEYBALL ──
+        {sport:"volleyball",emoji:"🏐",opponent:"Carpinteria HS",date:"2026-02-20",time:"5:30",location:"Carpinteria",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Carpinteria HS",date:"2026-02-20",time:"4:30",location:"Carpinteria",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Morro Bay at the Rock Tournament",date:"2026-03-06",time:"TBA",location:"Morro Bay",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Edison-Fresno",date:"2026-03-10",time:"5:30",location:"Edison",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Edison-Fresno",date:"2026-03-10",time:"4:30",location:"Edison",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Righetti",date:"2026-03-12",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Righetti",date:"2026-03-12",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Morro Bay JV Tournament",date:"2026-03-14",time:"TBA",location:"Morro Bay",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Paso Robles",date:"2026-03-19",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Paso Robles",date:"2026-03-19",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Lompoc",date:"2026-03-24",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Lompoc",date:"2026-03-24",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Santa Maria",date:"2026-03-26",time:"6:00",location:"Santa Maria",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Santa Maria",date:"2026-03-26",time:"5:00",location:"Santa Maria",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Kings River Varsity Invitational",date:"2026-03-27",time:"TBA",location:"Kings River",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Templeton",date:"2026-03-31",time:"6:00",location:"Templeton",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Templeton",date:"2026-03-31",time:"5:00",location:"Templeton",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Nipomo",date:"2026-04-01",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Nipomo",date:"2026-04-01",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Cabrillo",date:"2026-04-02",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Cabrillo",date:"2026-04-02",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Mission Prep",date:"2026-04-14",time:"6:00",location:"Mission Prep",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Mission Prep",date:"2026-04-14",time:"5:00",location:"Mission Prep",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Lompoc",date:"2026-04-16",time:"6:00",location:"Lompoc",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Lompoc",date:"2026-04-16",time:"5:00",location:"Lompoc",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Bakersfield Christian",date:"2026-04-17",time:"4:30",location:"BCHS",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Battle of the Coast JV Tournament",date:"2026-04-18",time:"8:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Santa Maria",date:"2026-04-21",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Santa Maria",date:"2026-04-21",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Templeton",date:"2026-04-23",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Templeton",date:"2026-04-23",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Bakersfield Christian",date:"2026-04-24",time:"5:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Nipomo & Reedley",date:"2026-04-25",time:"1:30",location:"Nipomo",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Cabrillo",date:"2026-04-28",time:"6:00",location:"Cabrillo",level:"Varsity",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Cabrillo",date:"2026-04-28",time:"5:00",location:"Cabrillo",level:"JV",home:false},
+        {sport:"volleyball",emoji:"🏐",opponent:"Mission Prep",date:"2026-04-30",time:"6:00",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"volleyball",emoji:"🏐",opponent:"Mission Prep",date:"2026-04-30",time:"5:00",location:"SYVHS",level:"JV",home:true},
+        // ── MEN'S TENNIS ──
+        {sport:"tennis",emoji:"🎾",opponent:"Lompoc",date:"2026-02-19",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Mission Prep",date:"2026-02-24",time:"3:30",location:"Sinsheimer Park, SLO",level:"Varsity",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Lompoc",date:"2026-02-27",time:"3:30",location:"Lompoc",level:"Varsity",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Independence",date:"2026-03-03",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Mission Prep",date:"2026-03-05",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Righetti",date:"2026-03-10",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Righetti",date:"2026-03-10",time:"3:30",location:"ERHS",level:"JV",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Nipomo",date:"2026-03-12",time:"3:30",location:"NHS",level:"Varsity",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Santa Maria",date:"2026-03-17",time:"3:30",location:"SMHS",level:"Varsity",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Santa Maria",date:"2026-03-17",time:"3:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Cabrillo",date:"2026-03-19",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Cabrillo",date:"2026-03-19",time:"3:30",location:"CHS",level:"JV",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Morro Bay",date:"2026-03-24",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Morro Bay",date:"2026-03-24",time:"3:30",location:"MBHS",level:"JV",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Righetti",date:"2026-03-26",time:"3:30",location:"ERHS",level:"Varsity",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Nipomo",date:"2026-03-31",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Santa Maria",date:"2026-04-02",time:"3:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Santa Maria",date:"2026-04-02",time:"3:30",location:"SMHS",level:"JV",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Cabrillo",date:"2026-04-14",time:"3:30",location:"CHS",level:"Varsity",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Cabrillo",date:"2026-04-14",time:"3:30",location:"SYVHS",level:"JV",home:true},
+        {sport:"tennis",emoji:"🎾",opponent:"Morro Bay",date:"2026-04-16",time:"3:30",location:"MBHS",level:"Varsity",home:false},
+        {sport:"tennis",emoji:"🎾",opponent:"Morro Bay",date:"2026-04-16",time:"3:30",location:"SYVHS",level:"JV",home:true},
+        // ── MEN'S GOLF ──
+        {sport:"golf",emoji:"⛳",opponent:"Coastal Christian",date:"2026-03-10",time:"3:00",location:"Blacklake GC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"Santa Maria",date:"2026-03-16",time:"3:00",location:"Blacklake GC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"Highland's Impossible River Shootout",date:"2026-03-18",time:"12:00",location:"Kern River GC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"Sierra Pacific",date:"2026-03-24",time:"12:00",location:"Blacklake GC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"League Mini Tournament #1",date:"2026-03-30",time:"TBA",location:"Santa Maria CC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"Bishop Diego",date:"2026-04-02",time:"TBA",location:"TBA",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"League Mini Tournament #2",date:"2026-04-13",time:"TBA",location:"Rancho Maria GC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"League Mini Tournament #3",date:"2026-04-21",time:"12:00",location:"Blacklake GC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"Santa Maria",date:"2026-04-23",time:"3:00",location:"Blacklake GC",level:"Varsity/JV",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"League Mini Tournament #4",date:"2026-04-27",time:"TBA",location:"La Purisima GC",level:"Varsity",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"Santa Maria",date:"2026-04-30",time:"3:00",location:"Santa Maria CC",level:"Varsity/JV",home:false},
+        {sport:"golf",emoji:"⛳",opponent:"League Final Tournament",date:"2026-05-04",time:"TBA",location:"TBA",level:"Varsity",home:false},
+        // ── SWIM & DIVE ──
+        {sport:"swim",emoji:"🏊",opponent:"Orcutt Academy Dual",date:"2026-03-13",time:"3:00",location:"SYVHS",level:"All",home:true},
+        {sport:"swim",emoji:"🏊",opponent:"Santa Maria",date:"2026-03-20",time:"3:00",location:"SYVHS",level:"All",home:true},
+        {sport:"swim",emoji:"🏊",opponent:"Nipomo",date:"2026-03-27",time:"3:00",location:"Nipomo",level:"All",home:false},
+        {sport:"swim",emoji:"🏊",opponent:"St. Joseph",date:"2026-04-03",time:"3:00",location:"SYVHS",level:"All",home:true},
+        {sport:"swim",emoji:"🏊",opponent:"Tri-County Invite Swim Championships",date:"2026-04-09",time:"1:00",location:"San Marcos",level:"Varsity",home:false},
+        {sport:"swim",emoji:"🏊",opponent:"Lompoc",date:"2026-04-17",time:"3:00",location:"SYVHS",level:"All",home:true},
+        {sport:"swim",emoji:"🏊",opponent:"Sierra Pacific Swimming Invitational",date:"2026-04-18",time:"7:30",location:"Sierra Pacific",level:"Varsity",home:false},
+        {sport:"swim",emoji:"🏊",opponent:"Mission Prep",date:"2026-04-24",time:"3:00",location:"SYVHS",level:"All",home:true},
+        {sport:"swim",emoji:"🏊",opponent:"Ocean League Prelims",date:"2026-04-29",time:"2:00",location:"Lompoc",level:"All",home:false},
+        {sport:"swim",emoji:"🏊",opponent:"Ocean League Prelims",date:"2026-04-30",time:"2:00",location:"Lompoc",level:"All",home:false},
+        {sport:"swim",emoji:"🏊",opponent:"Ocean League Finals",date:"2026-05-01",time:"2:00",location:"Lompoc",level:"All",home:false},
+        {sport:"swim",emoji:"🏊",opponent:"CIF Central Section Playoffs",date:"2026-05-06",time:"2:00",location:"TBD",level:"Varsity",home:false},
+        {sport:"swim",emoji:"🏊",opponent:"CIF State",date:"2026-05-14",time:"2:00",location:"TBD",level:"Varsity",home:false},
+        // ── TRACK & FIELD ──
+        {sport:"track",emoji:"🏃",opponent:"Season Kickoff Scrimmage @ Santa Maria HS",date:"2026-02-16",time:"2:00",location:"SMHS",level:"All",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Dual Meet vs. Orcutt Academy HS",date:"2026-02-21",time:"9:00",location:"SYVHS",level:"All",home:true},
+        {sport:"track",emoji:"🏃",opponent:"Royal Classic @ San Marcos HS",date:"2026-02-28",time:"9:00",location:"San Marcos",level:"All",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Nipomo/Mission/Morro Bay Quad Meet",date:"2026-03-04",time:"3:00",location:"NHS",level:"All",home:false},
+        {sport:"track",emoji:"🏃",opponent:"66th Annual East Bakersfield Relays",date:"2026-03-06",time:"12:00",location:"BCC",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Atascadero Memorial Meet",date:"2026-03-07",time:"8:00",location:"Atascadero",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"CCAA Ocean League Quad Meet (PV,SM,MP,LHS)",date:"2026-03-12",time:"2:30",location:"SMHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Red Estes Invitational",date:"2026-03-20",time:"2:00",location:"BHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"CCAA Ocean League Quad Meet (SM,CHS,PV,MB)",date:"2026-03-26",time:"2:30",location:"SMHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Bearcat (Paso Robles)",date:"2026-03-28",time:"8:00",location:"PRHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Santa Maria City Classic (Battle for the Baton)",date:"2026-04-04",time:"8:30",location:"RHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"CCAA Ocean League Quad Meet (SM,PV,SJ,OA)",date:"2026-04-09",time:"2:30",location:"SYVHS",level:"Varsity",home:true},
+        {sport:"track",emoji:"🏃",opponent:"West Coast Relays",date:"2026-04-11",time:"10:00",location:"BHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Unified Track and Field Invite",date:"2026-04-15",time:"3:30",location:"SYVHS",level:"Unified",home:true},
+        {sport:"track",emoji:"🏃",opponent:"SLO Invitational",date:"2026-04-18",time:"TBD",location:"SLOHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Santa Barbara County Championships",date:"2026-04-25",time:"TBD",location:"RHS",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Ocean League Prelims",date:"2026-05-01",time:"2:30",location:"LHS",level:"All",home:false},
+        {sport:"track",emoji:"🏃",opponent:"Ocean League Finals",date:"2026-05-08",time:"1:30",location:"LHS",level:"All",home:false},
+        {sport:"track",emoji:"🏃",opponent:"CIF Division II Meet",date:"2026-05-15",time:"4:00",location:"Dinuba",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"CIF Masters",date:"2026-05-22",time:"4:00",location:"Buchanan",level:"Varsity",home:false},
+        {sport:"track",emoji:"🏃",opponent:"CIF State",date:"2026-05-29",time:"5:00",location:"Buchanan",level:"Varsity",home:false}
+      ];
 
-      const sectionOrder = ['School Administrators', 'Teachers', 'Other Employees'];
-      const orderedSections = sectionOrder.filter(s => grouped[s]);
+      // Sort all events by date then time
+      ATH.sort(function(a,b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.time < b.time ? -1 : 1); });
 
-      orderedSections.forEach(section => {
-        const members = grouped[section];
-        if (!members.length) return;
+      let athFilter = 'all';
+      const athListEl = document.getElementById('athList');
+      const athTabsEl = document.getElementById('athTabs');
+      const athTZ = 'America/Los_Angeles';
 
-        const sectionTitle = document.createElement('div');
-        sectionTitle.className = 'dir-section-title';
-        sectionTitle.textContent = section;
-        resultsEl.appendChild(sectionTitle);
+      function getAthToday() {
+        return new Intl.DateTimeFormat('en-CA', {timeZone: athTZ, year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date());
+      }
 
-        members.forEach(m => {
-          const card = document.createElement('div');
-          card.className = 'dir-card';
+      function fmtAthDate(d) {
+        var p = d.split('-'); var dt = new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
+        return dt.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+      }
 
-          const name = document.createElement('div');
-          name.className = 'dir-name';
-          name.textContent = m.name;
+      function buildAthCard(ev, isToday, isPast) {
+        var cls = 'ath-ev' + (isToday ? ' is-today' : '') + (isPast ? ' is-past' : '');
+        var homeBadge = ev.home
+          ? '<span class="ath-badge ath-badge--home">HOME</span>'
+          : '<span class="ath-badge ath-badge--away">AWAY</span>';
+        var levelBadge = '<span class="ath-badge ath-badge--level">' + ev.level + '</span>';
+        var sportLabel = athFilter === 'all' ? '<span class="ath-ev-sport">' + ev.sport.toUpperCase() + '</span>' : '';
+        return '<div class="' + cls + '">' +
+          '<span class="ath-ev-icon">' + ev.emoji + '</span>' +
+          '<div class="ath-ev-body">' +
+            sportLabel +
+            '<p class="ath-ev-opponent">' + ev.opponent + ' ' + homeBadge + ' ' + levelBadge + '</p>' +
+            '<p class="ath-ev-meta">' + ev.time + (ev.time !== 'TBA' && ev.time !== 'TBD' ? ' PM' : '') + ' &middot; ' + ev.location + '</p>' +
+          '</div>' +
+        '</div>';
+      }
 
-          const role = document.createElement('div');
-          role.className = 'dir-role';
-          role.textContent = m.role;
+      function renderAthletics() {
+        if (!athListEl) return;
+        var today = getAthToday();
+        var filtered = athFilter === 'all' ? ATH : ATH.filter(function(e) { return e.sport === athFilter; });
+        if (!filtered.length) {
+          athListEl.innerHTML = '<div class="ath-empty"><span class="ath-empty-icon">🏟️</span><p class="ath-empty-text">No events for this sport.</p></div>';
+          return;
+        }
+        var todayEvents = filtered.filter(function(e) { return e.date === today; });
+        var futureEvents = filtered.filter(function(e) { return e.date > today; });
+        var pastEvents = filtered.filter(function(e) { return e.date < today; });
 
-          const contact = document.createElement('div');
-          contact.className = 'dir-contact';
-
-          if (m.email) {
-            const emailLink = document.createElement('a');
-            emailLink.href = 'mailto:' + m.email;
-            emailLink.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
-            emailLink.innerHTML += m.email;
-            emailLink.addEventListener('click', e => e.stopPropagation());
-            contact.appendChild(emailLink);
+        var html = '';
+        // Today's games hero
+        if (todayEvents.length) {
+          html += '<div class="ath-today-banner">🏟️ ' + todayEvents.length + ' Game' + (todayEvents.length > 1 ? 's' : '') + ' Today!</div>';
+          todayEvents.forEach(function(ev) { html += buildAthCard(ev, true, false); });
+        }
+        // Upcoming grouped by date
+        var lastDate = '';
+        futureEvents.forEach(function(ev) {
+          if (ev.date !== lastDate) {
+            html += '<p class="ath-date-hdr">' + fmtAthDate(ev.date) + '</p>';
+            lastDate = ev.date;
           }
-          if (m.phone) {
-            const phoneLink = document.createElement('a');
-            phoneLink.href = 'tel:' + m.phone.replace(/[^+\d]/g,'');
-            phoneLink.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>`;
-            phoneLink.innerHTML += m.phone;
-            phoneLink.addEventListener('click', e => e.stopPropagation());
-            contact.appendChild(phoneLink);
-          }
-
-          card.appendChild(name);
-          card.appendChild(role);
-          if (m.email || m.phone) card.appendChild(contact);
-          resultsEl.appendChild(card);
+          html += buildAthCard(ev, false, false);
         });
+        // Past events (dimmed)
+        if (pastEvents.length) {
+          html += '<p class="ath-date-hdr" style="opacity:0.4;margin-top:16px;">Past Events</p>';
+          lastDate = '';
+          pastEvents.forEach(function(ev) {
+            if (ev.date !== lastDate) {
+              html += '<p class="ath-date-hdr" style="opacity:0.35">' + fmtAthDate(ev.date) + '</p>';
+              lastDate = ev.date;
+            }
+            html += buildAthCard(ev, false, true);
+          });
+        }
+        athListEl.innerHTML = html;
+        athListEl.scrollTop = 0;
+      }
+
+      // Tab filtering
+      if (athTabsEl) athTabsEl.addEventListener('click', function(e) {
+        var tab = e.target.closest('.ath-tab');
+        if (!tab) return;
+        athTabsEl.querySelectorAll('.ath-tab').forEach(function(t) { t.classList.remove('is-active'); });
+        tab.classList.add('is-active');
+        athFilter = tab.dataset.sport;
+        renderAthletics();
       });
-    }
 
-    // ─── TABS ─────────────────────────────────────────────────────────────────
-    let currentTab = 'links';
+      // Game day notifications
+      function athFireNotif(title, body) {
+        if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+        var opts = { body: body, icon: './SY_AppIcon.png', badge: './SY_AppIcon.png', tag: 'pvhs-gameday', renotify: true, vibrate: [180,80,180] };
+        try {
+          navigator.serviceWorker?.getRegistration?.().then(function(reg) {
+            if (reg?.showNotification) { reg.showNotification(title, opts); return; }
+            try { new Notification(title, opts); } catch(_) {}
+          }).catch(function() { try { new Notification(title, opts); } catch(_) {} });
+        } catch(_) { try { new Notification(title, opts); } catch(_2) {} }
+      }
 
-    function switchTab(tab) {
-      currentTab = tab;
-      document.getElementById('links-view').style.display   = tab === 'links'     ? 'block' : 'none';
-      document.getElementById('directory-view').style.display = tab === 'directory' ? 'block' : 'none';
-      document.getElementById('tab-links').classList.toggle('active', tab === 'links');
-      document.getElementById('tab-directory').classList.toggle('active', tab === 'directory');
+      function checkAthGameDay() {
+        var today = getAthToday();
+        var key = 'syvhs_ath_notif_' + today;
+        if (localStorage.getItem(key)) return;
+        var todayGames = ATH.filter(function(e) { return e.date === today; });
+        if (!todayGames.length) return;
+        var sports = [];
+        todayGames.forEach(function(e) { if (sports.indexOf(e.sport) === -1) sports.push(e.sport); });
+        var body = todayGames.length + ' game' + (todayGames.length > 1 ? 's' : '') + ' today: ' +
+          sports.map(function(s) { return s.charAt(0).toUpperCase() + s.slice(1); }).join(', ') + '. Go Panthers!';
+        athFireNotif('🏟️ Game Day at SYVHS!', body);
+        localStorage.setItem(key, '1');
+      }
 
-      const input = document.getElementById('search-input');
-      if (tab === 'directory') {
-        input.placeholder = 'Search staff directory...';
-        input.focus();
+      // Also check on page load for background alerts
+      checkAthGameDay();
+
+    })();
+
+    // ── DAILY QUOTE ──────────────────────────────────────────────
+    (function() {
+      const tz = 'America/Los_Angeles';
+      const today = new Intl.DateTimeFormat('en-CA', {timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date());
+
+      // Remaining school days (from today through end of year)
+      const schoolDays = [
+        "2026-03-25","2026-03-26","2026-03-27","2026-03-30","2026-03-31",
+        "2026-04-01","2026-04-02","2026-04-13","2026-04-14","2026-04-15",
+        "2026-04-16","2026-04-17","2026-04-20","2026-04-21","2026-04-22",
+        "2026-04-23","2026-04-24","2026-04-27","2026-04-28","2026-04-29",
+        "2026-04-30","2026-05-01","2026-05-04","2026-05-05","2026-05-06",
+        "2026-05-07","2026-05-08","2026-05-11","2026-05-12","2026-05-13",
+        "2026-05-14","2026-05-15","2026-05-18","2026-05-19","2026-05-20",
+        "2026-05-21","2026-05-22","2026-05-26","2026-05-27","2026-05-28",
+        "2026-05-29","2026-06-01","2026-06-02","2026-06-03","2026-06-04",
+        "2026-06-05","2026-06-08","2026-06-09","2026-06-10"
+      ];
+
+      // 49 unique quotes for school days (covers 48 remaining + buffer)
+      const teacherQuotes = [
+        {q:"A teacher affects eternity; no one can tell where their influence stops.", a:"Henry Adams"},
+        {q:"The art of teaching is the art of assisting discovery.", a:"Mark Van Doren"},
+        {q:"Education is not the filling of a pail, but the lighting of a fire.", a:"W.B. Yeats"},
+        {q:"What a teacher is, is more important than what they teach.", a:"Karl Menninger"},
+        {q:"The best teachers teach from the heart, not from the book.", a:"Unknown"},
+        {q:"Teaching is the one profession that creates all other professions.", a:"Unknown"},
+        {q:"Every child deserves a champion — an adult who will never give up on them.", a:"Rita Pierson"},
+        {q:"The influence of a great teacher can never be erased.", a:"Unknown"},
+        {q:"To teach is to learn twice.", a:"Joseph Joubert"},
+        {q:"Nine-tenths of education is encouragement.", a:"Anatole France"},
+        {q:"Students don't care how much you know until they know how much you care.", a:"John C. Maxwell"},
+        {q:"The dream begins, most of the time, with a teacher who believes in you.", a:"Dan Rather"},
+        {q:"Good teaching is one-fourth preparation and three-fourths pure theatre.", a:"Gail Godwin"},
+        {q:"In learning you will teach, and in teaching you will learn.", a:"Phil Collins"},
+        {q:"Education is the most powerful weapon which you can use to change the world.", a:"Nelson Mandela"},
+        {q:"A good teacher can inspire hope, ignite the imagination, and instill a love of learning.", a:"Brad Henry"},
+        {q:"The mediocre teacher tells. The good teacher explains. The great teacher inspires.", a:"William Arthur Ward"},
+        {q:"What we learn with pleasure we never forget.", a:"Alfred Mercier"},
+        {q:"It is the supreme art of the teacher to awaken joy in creative expression and knowledge.", a:"Albert Einstein"},
+        {q:"Teachers plant seeds that grow forever.", a:"Unknown"},
+        {q:"The beautiful thing about learning is that nobody can take it away from you.", a:"B.B. King"},
+        {q:"Tell me and I forget. Teach me and I remember. Involve me and I learn.", a:"Benjamin Franklin"},
+        {q:"A teacher takes a hand, opens a mind, and touches a heart.", a:"Unknown"},
+        {q:"You are not just teaching a subject, you are shaping a future.", a:"Unknown"},
+        {q:"Teaching kids to count is fine, but teaching them what counts is best.", a:"Bob Talbert"},
+        {q:"The task of the modern educator is not to cut down jungles, but to irrigate deserts.", a:"C.S. Lewis"},
+        {q:"The best teachers are those who show you where to look but don't tell you what to see.", a:"Alexandra K. Trenfor"},
+        {q:"One child, one teacher, one book, one pen can change the world.", a:"Malala Yousafzai"},
+        {q:"Education breeds confidence. Confidence breeds hope. Hope breeds peace.", a:"Confucius"},
+        {q:"Teachers can change lives with just the right mix of chalk and challenges.", a:"Joyce Meyer"},
+        {q:"Be the teacher you needed when you were younger.", a:"Unknown"},
+        {q:"Your patience and dedication change lives every single day.", a:"Unknown"},
+        {q:"A great coach can change a game. A great teacher can change a life.", a:"Unknown"},
+        {q:"The energy you bring to your classroom is the energy your students carry into the world.", a:"Unknown"},
+        {q:"Behind every successful person is a substantial amount of coffee and a great teacher.", a:"Unknown"},
+        {q:"Teaching is not about answering questions but about raising questions.", a:"Unknown"},
+        {q:"You are the difference in someone's story today.", a:"Unknown"},
+        {q:"Not all superheroes wear capes — some carry lesson plans.", a:"Unknown"},
+        {q:"The world needs more people like you — patient, passionate, present.", a:"Unknown"},
+        {q:"Your impact on your students goes far beyond the classroom walls.", a:"Unknown"},
+        {q:"Great leaders don't set out to be a leader. They set out to make a difference.", a:"Jeremy Bravo"},
+        {q:"A coach is someone who tells you what you don't want to hear so you can be who you want to be.", a:"Tom Landry"},
+        {q:"The growth of a student is the greatest reward a teacher can receive.", a:"Unknown"},
+        {q:"What you do today can improve all your tomorrows.", a:"Ralph Marston"},
+        {q:"Leadership is not about being in charge — it's about taking care of those in your charge.", a:"Simon Sinek"},
+        {q:"Keep showing up. Your students are watching and learning more than the curriculum.", a:"Unknown"},
+        {q:"You don't have to be perfect to inspire others. Let them be inspired by how you deal with your imperfections.", a:"Unknown"},
+        {q:"Almost there. Finish strong — your students are counting on you.", a:"Unknown"},
+        {q:"The finish line is near. What a year you have made it.", a:"Unknown"}
+      ];
+
+      // Recycling quotes for weekends & days off
+      const dayOffQuotes = [
+        {q:"Rest is not idleness; it is the key to a powerful tomorrow.", a:"John Lubbock"},
+        {q:"You deserve this break. Recharge and come back even stronger.", a:"Unknown"},
+        {q:"Take care of yourself — you can't pour from an empty cup.", a:"Unknown"},
+        {q:"The time you enjoy wasting is not wasted time.", a:"Bertrand Russell"},
+        {q:"Almost everything will work again if you unplug it for a few minutes, including you.", a:"Anne Lamott"},
+        {q:"Breathe. Let go. And remind yourself that this very moment is the only one you have for sure.", a:"Oprah Winfrey"},
+        {q:"Happiness is not something ready-made. It comes from your own actions.", a:"Dalai Lama"},
+        {q:"Do something today that your future self will thank you for.", a:"Sean Patrick Flanery"},
+        {q:"The only way to do great work is to love what you do.", a:"Steve Jobs"},
+        {q:"Believe you can and you're halfway there.", a:"Theodore Roosevelt"},
+        {q:"In the middle of difficulty lies opportunity.", a:"Albert Einstein"},
+        {q:"You are braver than you believe, stronger than you seem, and smarter than you think.", a:"A.A. Milne"},
+        {q:"Every day is a fresh start.", a:"Unknown"},
+        {q:"You are enough, just as you are.", a:"Meghan Markle"},
+        {q:"Life is short. Smile while you still have teeth.", a:"Unknown"}
+      ];
+
+      const idx = schoolDays.indexOf(today);
+      let quote;
+      if (idx >= 0) {
+        quote = teacherQuotes[idx % teacherQuotes.length];
       } else {
-        input.placeholder = 'Search staff directory...';
-      }
-    }
-
-    // ─── SEARCH ──────────────────────────────────────────────────────────────
-    const searchInput = document.getElementById('search-input');
-    const searchClear = document.getElementById('search-clear');
-
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value;
-      searchClear.classList.toggle('visible', q.length > 0);
-
-      // Auto-switch to directory tab when typing
-      if (q.length > 0 && currentTab !== 'directory') {
-        switchTab('directory');
+        // Hash the date string to pick a recycling quote
+        let hash = 0;
+        for (let i = 0; i < today.length; i++) hash = ((hash << 5) - hash + today.charCodeAt(i)) | 0;
+        quote = dayOffQuotes[Math.abs(hash) % dayOffQuotes.length];
       }
 
-      renderDirectory(q);
-    });
-
-    searchClear.addEventListener('click', () => {
-      searchInput.value = '';
-      searchClear.classList.remove('visible');
-      renderDirectory('');
-      searchInput.focus();
-    });
-
-    // Allow typing in search input (re-enable user-select)
-    searchInput.addEventListener('focus', () => {
-      document.body.style.userSelect = 'text';
-    });
-    searchInput.addEventListener('blur', () => {
-      document.body.style.userSelect = 'none';
-    });
+      const textEl = document.getElementById('quoteText');
+      const authEl = document.getElementById('quoteAuthor');
+      if (textEl && quote) textEl.textContent = '\u201C' + quote.q + '\u201D';
+      if (authEl && quote) authEl.textContent = '\u2014 ' + quote.a;
+    })();
   </script>
 </body>
 </html>

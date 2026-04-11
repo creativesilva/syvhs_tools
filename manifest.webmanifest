@@ -1,0 +1,42 @@
+{
+  "id": "/syvhs_tools/",
+  "name": "SYVHS Tools",
+  "short_name": "SYVHS Tools",
+  "description": "Santa Ynez Valley Union High School staff tools, countdown, directory, and quick links.",
+  "start_url": "/syvhs_tools/",
+  "scope": "/syvhs_tools/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0a0300",
+  "theme_color": "#cc5200",
+  "icons": [
+    {
+      "src": "/syvhs_tools/SY_AppIcon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/syvhs_tools/SY_AppIcon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Countdown",
+      "short_name": "Countdown",
+      "url": "/syvhs_tools/countdown.html",
+      "icons": [{ "src": "/syvhs_tools/SY_AppIcon.png", "sizes": "1024x1024" }]
+    },
+    {
+      "name": "Staff Directory",
+      "short_name": "Directory",
+      "url": "/syvhs_tools/extension_search.html",
+      "icons": [{ "src": "/syvhs_tools/SY_AppIcon.png", "sizes": "1024x1024" }]
+    }
+  ],
+  "categories": ["education", "utilities"]
+}

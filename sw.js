@@ -1,65 +1,72 @@
 // SYVHS Tools — Service Worker
-// Cache-first strategy for all app assets
-
-const CACHE_NAME = 'syvhs-tools-v1';
-
-const PRECACHE_ASSETS = [
-  './',
+// Provides: offline caching + notification delivery support
+const CACHE = 'syvhs-v1';
+const PRECACHE = [
   './index.html',
   './countdown.html',
-  './manifest.json',
-  './assets/links.json',
-  './assets/syvhs_staff.json',
-  './assets/SYVHS_Logo.svg',
-  './assets/SYVHS_Logo_Only.svg',
-  './assets/SY_AppIcon.png',
+  './extension_search.html',
+  './SY_Logo.png',
+  './SY_AppIcon.png',
+  './manifest.webmanifest'
 ];
 
-// Install: pre-cache all core assets
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(PRECACHE_ASSETS);
-    })
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE)
+      .then(c => c.addAll(PRECACHE).catch(() => {}))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Activate: remove old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
-    )
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch: cache-first, fall back to network
-self.addEventListener('fetch', event => {
-  // Only handle same-origin or relative requests
-  if (!event.request.url.startsWith(self.location.origin)) return;
-
-  event.respondWith(
-    caches.match(event.request).then(cached => {
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
+  // Network-first for HTML pages so updates appear immediately
+  if (url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // Cache-first for static assets (images, manifest)
+  e.respondWith(
+    caches.match(e.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then(response => {
-        // Cache valid responses for future use
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => {
-        // Offline fallback: return index.html for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
+      return fetch(e.request).then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      }).catch(() => cached);
     })
   );
+});
+
+// Receive notification requests from the page
+self.addEventListener('message', e => {
+  if (e.data?.type === 'SYVHS_NOTIFY') {
+    const { title, body, tag } = e.data;
+    e.waitUntil(
+      self.registration.showNotification(title, {
+        body,
+        icon:  './SY_AppIcon.png',
+        badge: './SY_AppIcon.png',
+        tag:   tag || 'syvhs',
+        renotify:            true,
+        requireInteraction:  false,
+        vibrate: [180, 80, 180]
+      })
+    );
+  }
 });

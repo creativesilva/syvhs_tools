@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SYVHS Tools">
+  <meta name="theme-color" content="#cc5200">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-TileColor" content="#0a0300">
+  <meta name="msapplication-navbutton-color" content="#cc5200">
+  
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="SY_AppIcon.png">
+  <link rel="icon" type="image/png" sizes="1024x1024" href="SY_AppIcon.png">
+  <title>Directory Search</title>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init('68UkiTjqHIKZMkeCC');</script>
+
+  <style>
+    :root {
+      --teal: #cc5200; --white: #fefaf5; --muted: #e8c8a8;
+      --panel: rgba(255,255,255,0.02); --panel-border: rgba(255,255,255,0.05);
+      --shadow: 0 20px 46px rgba(0,0,0,0.30); --soft-shadow: 0 12px 24px rgba(0,0,0,0.22);
+      --card-hover: rgba(255,255,255,0.12); --app-spacing: 16px; --radius: 34px;
+      --standalone-app-width: 100vw; --standalone-app-height: 100dvh;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    html { height: -webkit-fill-available; }
+    html, body { width: 100%; height: 100%; min-height: 100%; background: #0a0300; overflow: hidden; }
+    body { min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: var(--white); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+    /* The Frame ensures the app stays centered with margins on Desktop */
+    .frame { 
+      width: 100%; height: 100dvh; min-height: 100vh; min-height: -webkit-fill-available; display: flex; align-items: center; justify-content: center; 
+      padding: 10px;
+    }
+
+    /* THE PERMANENT IPHONE BUBBLE */
+    .app {
+      width: 430px; 
+      height: 880px; 
+      max-width: 100%; 
+      max-height: 100%;
+      border-radius: var(--radius); 
+      overflow: hidden; position: relative; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.04);
+      background: linear-gradient(168deg, rgba(6,28,28,0.97) 0%, rgba(4,24,24,0.95) 30%, rgba(90,42,10,0.92) 60%, rgba(120,58,15,0.96) 82%, rgba(4,30,30,0.97) 100%);
+      display: flex; flex-direction: column; padding: 14px var(--app-spacing) var(--app-spacing) var(--app-spacing);
+      isolation: isolate;
+    }
+
+    .app::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 20%, rgba(140,68,18,0.18) 0%, transparent 60%),
+                  radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    .ghost-logo { position: absolute; top: 56%; left: 50%; width: 120%; opacity: 0.07; transform: translate(-50%, -50%); filter: grayscale(100%) contrast(108%) brightness(114%); pointer-events: none; z-index: 0; }
+    
+    .content { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+
+    /* ONE-LINE HEADER */
+    .top-row {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; gap: 10px; height: 44px; flex-shrink: 0; margin-bottom: 4px;
+      position: relative;
+    }
+
+    /* ── NAV DROPDOWN MENU ─────────────────────────────── */
+    .nav-menu-btn {
+      appearance: none; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13); border-radius: 12px;
+      color: rgba(255,255,255,0.92); width: 34px; height: 34px;
+      font-size: 14px; font-weight: 900; letter-spacing: 0.08em;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.16s, border-color 0.16s;
+    }
+    .nav-menu-btn.is-open,
+    .nav-menu-btn:active { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.26); }
+    .nav-menu {
+      position: fixed; z-index: 9999; min-width: 172px;
+      background: rgba(3, 20, 20, 0.58);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 16px; padding: 5px;
+      box-shadow: 0 14px 44px rgba(0,0,0,0.52);
+      backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
+      transform-origin: top right;
+      transform: scale(0.88) translateY(-8px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.17s ease, transform 0.19s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    .nav-menu.is-open { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    .nav-menu-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 11px;
+      text-decoration: none; color: #ffe8d0; background: transparent;
+      font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; border: none; cursor: pointer; width: 100%;
+      transition: background 0.13s;
+    }
+    .nav-menu-item:active { background: rgba(255,255,255,0.1); }
+    .nav-menu-icon { font-size: 14px; flex-shrink: 0; }
+    .nav-menu-sep { height: 1px; background: rgba(255,255,255,0.09); margin: 3px 6px; }
+
+    .logo-clear { width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.24)); flex-shrink: 0; }
+    .page-title { position: absolute; left: 0; right: 0; text-align: center; font-size: 15px; font-weight: 700; color: #ffe8d0; text-transform: uppercase; margin: 0; letter-spacing: 0.14em; pointer-events: none; }
+
+    .search-card { padding: 12px 14px 14px; border-radius: 24px; background: var(--panel); border: 1px solid var(--panel-border); backdrop-filter: blur(10px); flex-shrink: 0; box-shadow: var(--soft-shadow); }
+    .search-title { margin: 0 0 2px 0; font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-align: center; }
+    .helper-text { margin: 0 0 10px 0; font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; text-align: center; letter-spacing: 0.08em; }
+    .search-input { width: 100%; border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; padding: 11px 14px; font-size: 15px; font-weight: 500; color: #fff; background: rgba(0,0,0,0.18); outline: none; text-align: center; }
+
+    .results-card { 
+      padding: 12px 12px 0 12px; border-radius: 24px; background: var(--panel); border: 1px solid var(--panel-border); 
+      backdrop-filter: blur(10px); box-shadow: var(--soft-shadow);
+      display: flex; flex-direction: column; flex: 1; overflow: hidden;
+    }
+    .result-count { margin-bottom: 8px; font-size: 10px; font-weight: 600; color: #ffe8d0; text-transform: uppercase; text-align: center; opacity: 0.8; flex-shrink: 0; letter-spacing: 0.08em;}
+    
+    .results-list { 
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .result-item { border-radius: 18px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 10px 12px; flex-shrink: 0; }
+    .result-name { margin: 0 0 3px 0; font-size: 15px; font-weight: 700; color: #fff; text-transform: none; text-align: center; }
+    .result-line { margin: 0; font-size: 10px; font-weight: 600; color: #d8f1f1; text-transform: none; opacity: 0.82; text-align: center; }
+    .result-ext { margin-top: 6px; font-size: 14px; font-weight: 700; color: #fff; text-align: center; }
+
+    .footer-note { margin-top: auto; padding: 10px 0 3px 0; font-size: 9.5px; color: #d0a878; font-weight: 600; text-align: center; flex-shrink: 0; }
+
+    body.is-standalone { background: #0a0300; }
+
+    body.is-standalone::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: #0a0300;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body.is-standalone .frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: -webkit-fill-available;
+      padding: 0 8px max(24px, calc(env(safe-area-inset-bottom) + 8px)) 8px;
+      z-index: 1;
+    }
+
+    body.is-standalone .app {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 34px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 24px 46px rgba(0,0,0,0.22);
+      padding-top: max(10px, env(safe-area-inset-top));
+      padding-right: max(var(--app-spacing), env(safe-area-inset-right));
+      padding-bottom: 18px;
+      padding-left: max(var(--app-spacing), env(safe-area-inset-left));
+    }
+
+    /* NATIVE APP OVERRIDE (Option B) */
+    @media (max-width: 430px) {
+      body:not(.is-popout):not(.is-standalone) .frame {
+        padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom) 12px;
+      }
+      body:not(.is-popout):not(.is-standalone) .app {
+        width: 100vw;
+        height: 100%;
+        max-height: 100%;
+        border-radius: var(--radius);
+        border: 1px solid rgba(255,255,255,0.12);
+      }
+      /* nav menu always visible */
+      body { touch-action: pan-y; }
+    }
+
+    /* ── ADD TO HOME SCREEN PROMPT ─────────────────────── */
+    .a2hs-prompt {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      padding: 0 14px 16px;
+      transform: translateY(110%);
+      transition: transform 0.48s cubic-bezier(0.34, 1.36, 0.64, 1);
+      pointer-events: none;
+    }
+    .a2hs-prompt.is-visible { transform: translateY(0); pointer-events: auto; }
+    .a2hs-inner {
+      display: flex; align-items: center; gap: 11px;
+      background: rgba(2, 22, 22, 0.93);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 20px; padding: 12px 14px;
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 -6px 28px rgba(0,0,0,0.34);
+    }
+    .a2hs-icon { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; }
+    .a2hs-text { flex: 1; }
+    .a2hs-title { font-size: 11.5px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.11em; margin: 0 0 3px; }
+    .a2hs-desc  { font-size: 10px; font-weight: 500; color: var(--muted); line-height: 1.45; margin: 0; }
+    .a2hs-share {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(0,130,255,0.85); color: #fff;
+      border-radius: 5px; padding: 1px 4px; font-size: 10px; font-weight: 700;
+      vertical-align: middle; margin: 0 1px;
+    }
+    .a2hs-dismiss {
+      appearance: none; background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);
+      border-radius: 99px; width: 26px; height: 26px; font-size: 12px;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .a2hs-dismiss:active { background: rgba(255,255,255,0.18); }
+
+    /* ── DESKTOP INSTALL BANNER ─────────────────────── */
+    .install-banner {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      padding: 12px 14px 0;
+      transform: translateY(-110%);
+      transition: transform 0.44s cubic-bezier(0.34, 1.3, 0.64, 1);
+      pointer-events: none;
+    }
+    .install-banner.is-visible { transform: translateY(0); pointer-events: auto; }
+    .install-banner-inner {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(120,58,15,0.92);
+      border: 1px solid rgba(75,225,225,0.28);
+      border-radius: 18px; padding: 11px 14px;
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.34);
+    }
+    .install-banner-icon { font-size: 22px; flex-shrink: 0; }
+    .install-banner-text { flex: 1; }
+    .install-banner-title { font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.11em; margin: 0 0 2px; }
+    .install-banner-desc  { font-size: 10px; font-weight: 500; color: #ffcc88; line-height: 1.4; margin: 0; }
+    .install-banner-btn {
+      appearance: none; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3);
+      color: #fff; border-radius: 10px; padding: 6px 12px;
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+      cursor: pointer; flex-shrink: 0; white-space: nowrap;
+    }
+    .install-banner-btn:active { background: rgba(255,255,255,0.28); }
+    .install-banner-dismiss {
+      appearance: none; background: transparent; border: none;
+      color: rgba(255,255,255,0.55); font-size: 14px; cursor: pointer;
+      flex-shrink: 0; padding: 2px 4px; line-height: 1;
+    }
+
+    /* ── DESKTOP INSTALL MODAL ──────────────────────── */
+    .install-modal[hidden] { display: none; }
+    .install-modal {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .install-modal-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(1,12,12,0.76);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .install-modal-dialog {
+      position: relative; width: min(100%, 380px);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(8,31,31,0.85);
+      box-shadow: 0 26px 48px rgba(0,0,0,0.4);
+      padding: 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .install-modal-header { display: flex; align-items: center; gap: 10px; }
+    .install-modal-appicon { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; }
+    .install-modal-titles { flex: 1; }
+    .install-modal-title { font-size: 14px; font-weight: 800; color: #fff; margin: 0 0 2px; letter-spacing: 0.05em; }
+    .install-modal-sub   { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin: 0; }
+    .install-modal-close {
+      appearance: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6); border-radius: 99px; width: 28px; height: 28px;
+      font-size: 13px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .install-modal-steps { display: flex; flex-direction: column; gap: 10px; }
+    .install-step {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(255,255,255,0.05); border-radius: 14px; padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .install-step-num {
+      width: 20px; height: 20px; border-radius: 99px;
+      background: rgba(240,125,30,0.3); border: 1px solid rgba(255,150,55,0.4);
+      color: #ffaa55; font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .install-step-text { font-size: 11px; font-weight: 500; color: #ffd8ad; line-height: 1.5; margin: 0; }
+    .install-step-text strong { color: #fff; font-weight: 700; }
+    .install-modal-cta {
+      appearance: none; width: 100%;
+      background: linear-gradient(135deg, #cc5200 0%, #ff6600 100%);
+      border: none; border-radius: 14px; padding: 13px;
+      color: #fff; font-size: 12px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.12em; cursor: pointer;
+    }
+    .install-modal-cta:active { opacity: 0.85; }
+    .install-modal-note { font-size: 9.5px; color: var(--muted); text-align: center; opacity: 0.7; margin: 0; }
+
+    /* ── FEEDBACK MODAL ─────────────────────────────────── */
+    .feedback-modal[hidden] { display: none; }
+    .feedback-modal {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .feedback-modal-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(1,12,12,0.8);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .feedback-dialog {
+      position: relative; width: min(100%, 360px);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(6,26,26,0.85);
+      box-shadow: 0 26px 48px rgba(0,0,0,0.44);
+      padding: 18px; display: flex; flex-direction: column; gap: 12px;
+      max-height: calc(100% - 20px); overflow-y: auto;
+    }
+    .feedback-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .feedback-title { font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.12em; margin: 0; }
+    .feedback-close {
+      appearance: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6); border-radius: 99px; width: 28px; height: 28px;
+      font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .feedback-rating { display: flex; justify-content: space-between; gap: 4px; }
+    .feedback-rating-btn {
+      appearance: none; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; flex: 1; padding: 8px 4px; font-size: 20px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center;
+    }
+    .feedback-rating-btn.is-selected { background: rgba(240,125,30,0.22); border-color: rgba(255,160,70,0.4); }
+    .feedback-rating-btn:active { background: rgba(255,255,255,0.14); }
+    .feedback-field { display: flex; flex-direction: column; gap: 5px; }
+    .feedback-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); opacity: 0.8; }
+    .feedback-textarea, .feedback-input {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; color: #fff5ea; font-size: 12px; font-weight: 500;
+      padding: 10px 12px; resize: none; outline: none; font-family: inherit;
+    }
+    .feedback-textarea { min-height: 64px; line-height: 1.45; }
+    .feedback-textarea:focus, .feedback-input:focus { border-color: rgba(255,140,40,0.4); }
+    .feedback-submit {
+      appearance: none; width: 100%;
+      background: linear-gradient(135deg, #cc5200 0%, #ff6600 100%);
+      border: none; border-radius: 14px; padding: 13px;
+      color: #fff; font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.12em; cursor: pointer;
+    }
+    .feedback-submit:active { opacity: 0.85; }
+    .feedback-note { font-size: 9px; color: var(--muted); text-align: center; opacity: 0.65; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="app">
+      <img src="SY_Logo.png" alt="" class="ghost-logo">
+      <div class="content">
+        
+        <div class="top-row">
+          <a href="index.html" class="nav-link" aria-label="Home"><img src="SY_Logo.png" alt="Logo" class="logo-clear"></a>
+          <h1 class="page-title">Directory</h1>
+          <button id="navMenuBtn" class="nav-menu-btn" type="button" aria-label="Menu" aria-expanded="false">···</button>
+        </div>
+
+        <div class="search-card">
+          <h2 class="search-title">Search</h2>
+          <p class="helper-text">Name, Dept, or Ext</p>
+          <input id="searchInput" class="search-input" type="text" placeholder="Silva, Guerra, Wisz..." autocomplete="off">
+        </div>
+
+        <div class="results-card">
+          <p class="result-count" id="resultCount">Recommended Contacts</p>
+          <div class="results-list" id="resultsList"></div>
+        </div>
+
+        <div class="footer-note">By: CreativeSilva</div>
+      </div>
+
+      <!-- DESKTOP INSTALL BANNER -->
+      <div id="installBanner" class="install-banner" hidden>
+        <div class="install-banner-inner">
+          <span class="install-banner-icon">📲</span>
+          <div class="install-banner-text">
+            <p class="install-banner-title">Install SYVHS Tools</p>
+            <p class="install-banner-desc" id="installBannerDesc">Add this to your dock for instant access — works like a real app.</p>
+          </div>
+          <button id="installBannerBtn" class="install-banner-btn" type="button">Install</button>
+          <button id="installBannerDismiss" class="install-banner-dismiss" type="button" aria-label="Dismiss">✕</button>
+        </div>
+      </div>
+
+      <!-- DESKTOP INSTALL MODAL -->
+      <div id="installModal" class="install-modal" hidden>
+        <div class="install-modal-backdrop" id="installModalBackdrop"></div>
+        <div class="install-modal-dialog">
+          <div class="install-modal-header">
+            <img src="SY_AppIcon.png" alt="" class="install-modal-appicon">
+            <div class="install-modal-titles">
+              <p class="install-modal-title">SYVHS Tools</p>
+              <p class="install-modal-sub">Install as Desktop App</p>
+            </div>
+            <button id="installModalClose" class="install-modal-close" type="button">✕</button>
+          </div>
+          <div id="installModalSteps" class="install-modal-steps"></div>
+          <button id="installModalCta" class="install-modal-cta" type="button" style="display:none">Install Now</button>
+          <p class="install-modal-note">Once installed, SYVHS Tools opens in its own window — no browser chrome, no tabs. Just the app.</p>
+        </div>
+      </div>
+
+      <!-- ADD TO HOME SCREEN PROMPT -->
+      <div id="a2hsPrompt" class="a2hs-prompt" hidden>
+        <div class="a2hs-inner">
+          <img src="SY_AppIcon.png" alt="SYVHS Tools" class="a2hs-icon">
+          <div class="a2hs-text">
+            <p class="a2hs-title">Install as App</p>
+            <p class="a2hs-desc" id="a2hsDesc">Tap <span class="a2hs-share">⬆ Share</span> then <strong style="color:#fff">"Add to Home Screen"</strong> for the full experience.</p>
+          </div>
+          <button id="a2hsDismiss" class="a2hs-dismiss" type="button" aria-label="Dismiss">✕</button>
+        </div>
+      </div>
+
+      <!-- FEEDBACK MODAL -->
+      <div id="feedbackModal" class="feedback-modal" hidden>
+        <div class="feedback-modal-backdrop" id="feedbackBackdrop"></div>
+        <div class="feedback-dialog">
+          <div class="feedback-header">
+            <p class="feedback-title">💬 Share Feedback</p>
+            <button id="feedbackClose" class="feedback-close" type="button">✕</button>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">How's the app working for you?</p>
+            <div class="feedback-rating" id="feedbackRating">
+              <button class="feedback-rating-btn" data-val="1" type="button">😕</button>
+              <button class="feedback-rating-btn" data-val="2" type="button">😐</button>
+              <button class="feedback-rating-btn" data-val="3" type="button">🙂</button>
+              <button class="feedback-rating-btn" data-val="4" type="button">😊</button>
+              <button class="feedback-rating-btn" data-val="5" type="button">🤩</button>
+            </div>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">What's working well?</p>
+            <textarea id="feedbackGood" class="feedback-textarea" placeholder="I love that it shows…"></textarea>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">What would you add or change?</p>
+            <textarea id="feedbackImprove" class="feedback-textarea" placeholder="It would be great if…"></textarea>
+          </div>
+          <div class="feedback-field">
+            <p class="feedback-label">Your name (optional)</p>
+            <input id="feedbackName" class="feedback-input" type="text" placeholder="e.g. Ms. Johnson">
+          </div>
+          <button id="feedbackSubmit" class="feedback-submit" type="button">Send Feedback ✉️</button>
+          <p class="feedback-note">Your feedback is sent directly to the developer.</p>
+        </div>
+      </div>
+
+      <!-- NAV DROPDOWN -->
+      <div id="navMenu" class="nav-menu" role="menu">
+        <a href="countdown.html" class="nav-menu-item nav-link" role="menuitem"><span class="nav-menu-icon">⏱</span>Countdown</a>
+        <a href="index.html#news" class="nav-menu-item nav-link" role="menuitem"><span class="nav-menu-icon">📰</span>News</a>
+        <a href="index.html"     class="nav-menu-item nav-link" role="menuitem"><span class="nav-menu-icon">🏠</span>Home</a>
+        <div id="popoutMenuSep" class="nav-menu-sep"></div>
+        <button id="popoutBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon">🪟</span>Pop Out</button>
+        <div id="installMenuSep" class="nav-menu-sep"></div>
+        <button id="installBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon" id="installIcon">📲</span><span id="installLabel">Add to Home Screen</span></button>
+        <div class="nav-menu-sep"></div>
+        <button id="feedbackBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon">💬</span>Share Feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const isPopout = mode === 'popout';
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    function updateStandaloneViewportVars() {
+      if (!isStandalone) return;
+      const heightCandidates = [
+        window.innerHeight,
+        window.outerHeight,
+        window.visualViewport ? Math.round(window.visualViewport.height) : 0,
+        window.screen ? window.screen.height : 0,
+        window.screen ? window.screen.availHeight : 0
+      ].filter(Boolean);
+      const widthCandidates = [
+        window.innerWidth,
+        window.outerWidth,
+        window.visualViewport ? Math.round(window.visualViewport.width) : 0,
+        window.screen ? window.screen.width : 0,
+        window.screen ? window.screen.availWidth : 0
+      ].filter(Boolean);
+
+      const appHeight = Math.max(...heightCandidates);
+      const appWidth = Math.max(...widthCandidates);
+
+      document.documentElement.style.setProperty('--standalone-app-height', `${appHeight}px`);
+      document.documentElement.style.setProperty('--standalone-app-width', `${appWidth}px`);
+    }
+
+    if (isStandalone) {
+      document.body.classList.add('is-standalone');
+      updateStandaloneViewportVars();
+      window.addEventListener('resize', updateStandaloneViewportVars);
+      window.addEventListener('orientationchange', updateStandaloneViewportVars);
+      window.addEventListener('pageshow', updateStandaloneViewportVars);
+      window.visualViewport?.addEventListener('resize', updateStandaloneViewportVars);
+      setTimeout(updateStandaloneViewportVars, 250);
+      setTimeout(updateStandaloneViewportVars, 800);
+    }
+
+    // PERSISTENT UI LOGIC
+    if (isPopout) {
+      document.body.classList.add('is-popout');
+      navLinks.forEach(link => {
+        const url = new URL(link.href, window.location.origin);
+        url.searchParams.set('mode', 'popout');
+        link.href = url.toString();
+      });
+    }
+
+    // Pop-out button
+    if (isMobile || isStandalone || isPopout) {
+      document.getElementById('popoutBtn')?.remove();
+      document.getElementById('popoutMenuSep')?.remove();
+    } else {
+      document.getElementById('popoutBtn')?.addEventListener('click', () => {
+        document.getElementById('navMenu')?.classList.remove('is-open');
+        document.getElementById('navMenuBtn')?.classList.remove('is-open');
+        window.open('extension_search.html?mode=popout', 'pvDirectory', 'width=450,height=900,resizable=yes,scrollbars=no');
+      });
+    }
+
+    // NAV MENU
+    const navMenuBtn = document.getElementById('navMenuBtn');
+    const navMenu    = document.getElementById('navMenu');
+    function positionNavMenu() {
+      if (!navMenuBtn || !navMenu) return;
+      const r = navMenuBtn.getBoundingClientRect();
+      navMenu.style.top   = `${r.bottom + 6}px`;
+      navMenu.style.right = `${window.innerWidth - r.right}px`;
+    }
+    navMenuBtn?.addEventListener('click', e => {
+      e.stopPropagation();
+      positionNavMenu();
+      const open = navMenu.classList.toggle('is-open');
+      navMenuBtn.classList.toggle('is-open', open);
+      navMenuBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', () => {
+      navMenu?.classList.remove('is-open');
+      navMenuBtn?.classList.remove('is-open');
+    });
+    navMenu?.addEventListener('click', e => e.stopPropagation());
+
+    // Keep internal navigation inside the installed app.
+    if (isStandalone) {
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault(); 
+          const nextHref = link.getAttribute('href');
+          if (nextHref) window.location.assign(nextHref);
+        });
+      });
+    }
+    const extensionSearch = [{"name":"Kelley Carter","role":"Refugio - Assistant Principal","extension":"3397"},{"name":"Jasmine Day","role":"Assistant Principal","extension":"3999"},{"name":"Elysia Lewis","role":"Chief Business Official","extension":"3560"},{"name":"Tori Martinez","role":"SYHS Principal","extension":"2325"},{"name":"Kimberly Sheehan","role":"Superintendent","extension":"3200"},{"name":"John Bailey","role":"Teacher","extension":"jbailey@syvuhsd.org"},{"name":"Lisa Boyer","role":"Teacher","extension":"lboyer@syvuhsd.org"},{"name":"Kylin Bray","role":"Teacher","extension":"kbray@syvuhsd.org"},{"name":"Amelia Brown","role":"Teacher","extension":"abrown@syvuhsd.org"},{"name":"Rob Cantrell","role":"Teacher; ASB Advisor","extension":"rcantrell@syvuhsd.org"},{"name":"Cassandra Cathcart","role":"Teacher","extension":"cjoyner@syvuhsd.org"},{"name":"Heather Clement","role":"Teacher","extension":"hclement@syvuhsd.org"},{"name":"John Connolly","role":"Teacher","extension":"jconnolly@syvuhsd.org"},{"name":"Amy Curti","role":"Teacher","extension":"acurti@syvuhsd.org"},{"name":"Mike Daniels","role":"Teacher","extension":"mdaniels@syvuhsd.org"},{"name":"Maggie Fernandez","role":"Counselor","extension":"3321"},{"name":"Greg Gandolfo","role":"Teacher","extension":"ggandolfo@syvuhsd.org"},{"name":"Sarah Gandolfo","role":"Teacher","extension":"sgandolfo@syvuhsd.org"},{"name":"Nicholas Goodman","role":"Teacher","extension":"ngoodman@syvuhsd.org"},{"name":"Jason Heimerdinger","role":"Media Arts","extension":"—"},{"name":"Priya Jackson","role":"Teacher","extension":"pjackson@syvuhsd.org"},{"name":"Jake Kalkowski","role":"Teacher","extension":"jkalkowski@syvuhsd.org"},{"name":"David Kirkhart","role":"Teacher","extension":"dkirkhart@syvuhsd.org"},{"name":"Annick Labeeuw","role":"SDC 3 Teacher","extension":"alabeeuw@syvuhsd.org"},{"name":"Danielle Lageman","role":"Head Counselor","extension":"3211"},{"name":"Cheryl Lee","role":"Teacher","extension":"clee@syvuhsd.org"},{"name":"Emily Little","role":"Teacher","extension":"elittle@syvuhsd.org"},{"name":"Taylor Magallanes","role":"Teacher & Athletic Trainer","extension":"2388"},{"name":"Josh McClurg","role":"Athletic Director","extension":"3228"},{"name":"Sally McNamara","role":"Teacher","extension":"smcnamara@syvuhsd.org"},{"name":"Shannon Montanes","role":"Teacher","extension":"smontanes@syvuhsd.org"},{"name":"Kaci Morrell","role":"Teacher","extension":"kmorrell@syvuhsd.org"},{"name":"Chris Mullin","role":"Teacher","extension":"cmullin@syvuhsd.org"},{"name":"Helen Nguyen","role":"School Psychologist","extension":"hnguyen@syvuhsd.org"},{"name":"Sue Noyes","role":"Teacher, Department Chair","extension":"snoyes@syvuhsd.org"},{"name":"Adriana Palacios","role":"Counselor","extension":"3210"},{"name":"Jimmy Palacios","role":"Teacher","extension":"jpalacios@syvuhsd.org"},{"name":"Ian Pendry","role":"Teacher","extension":"ipendry@syvuhsd.org"},{"name":"Katelyn Pendry","role":"Teacher","extension":"kpendry@syvuhsd.org"},{"name":"Suzzanne Phipps","role":"Teacher","extension":"sphipps@syvuhsd.org"},{"name":"Jennifer Rasmussen","role":"Teacher","extension":"jrasmussen@syvuhsd.org"},{"name":"Casey Reck","role":"Teacher","extension":"creck@syvuhsd.org"},{"name":"Susana Rodriguez","role":"Teacher","extension":"srodriguez@syvuhsd.org"},{"name":"Gary Semerdjian","role":"Teacher","extension":"gsemerdjian@syvuhsd.org"},{"name":"Patrick Shattuck","role":"Teacher","extension":"pshattuck@syvuhsd.org"},{"name":"Billy Silvola","role":"Teacher","extension":"bsilvola@syvuhsd.org"},{"name":"Sandy Slobig","role":"Teacher","extension":"sslobig@syvuhsd.org"},{"name":"Naomi Thompson","role":"S.T.E.P. 3","extension":"nthompson@syvuhsd.org"},{"name":"Agustin Vizcaino","role":"Teacher","extension":"avizcaino@syvuhsd.org"},{"name":"Cory Withers","role":"Teacher","extension":"cwithers@syvuhsd.org"},{"name":"Greg Wolf","role":"Teacher","extension":"gwolf@syvuhsd.org"},{"name":"Erik Wordal","role":"Teacher","extension":"ewordal@syvuhsd.org"},{"name":"Joanna Zaragoza","role":"Teacher","extension":"jzaragoza@syvuhsd.org"},{"name":"SYHS Alumni","role":"Other Employees","extension":"alumni@syvuhsd.org"},{"name":"Leopoldo Amador","role":"Maintenance, Operational & Transportation Manager","extension":"3206"},{"name":"Rudy Bondietti","role":"Maintenance","extension":"rbondietti@syvuhsd.org"},{"name":"Juana Cabrera","role":"Food Service","extension":"jcabrera@syvuhsd.org"},{"name":"Sayard Cooney","role":"Nurse","extension":"3310"},{"name":"Andres De la Cruz","role":"Custodian","extension":"adelacruz@syvuhsd.org"},{"name":"Marisela De La Cruz","role":"Business Office Technician","extension":"3568"},{"name":"Pedro De la Cruz","role":"Grounds","extension":"pdelacruz@syvuhsd.org"},{"name":"Dev Davison","role":"Campus Security","extension":"ddavison@syvuhsd.org"},{"name":"Javier Diaz","role":"Grounds","extension":"jdiaz@syvuhsd.org"},{"name":"Carina Esparza","role":"Food Service","extension":"cesparza@syvuhsd.org"},{"name":"Hector Garcia","role":"Maintenance","extension":"hgarcia@syvuhsd.org"},{"name":"Maria Garcia","role":"Lead Student Services Technician","extension":"3225"},{"name":"Christina Garver","role":"Campus Security","extension":"cgarver@syvuhsd.org"},{"name":"Ricky Hernandez","role":"IT Systems Engineer","extension":"3325"},{"name":"Edmund Hung","role":"IT Systems Engineer","extension":"3565"},{"name":"Corina Krisher","role":"Food Service Manager","extension":"3232"},{"name":"Selena Krisher","role":"Student Data Information Specialist","extension":"3207"},{"name":"Maryssa Lopez","role":"Accountant II","extension":"3561"},{"name":"Cortney Marino","role":"Library Media Specialist","extension":"3202"},{"name":"Ashley Moniot","role":"Attendance Assistant","extension":"3238"},{"name":"Claudia Pena","role":"Health and Wellness Coordinator","extension":"3270"},{"name":"Jose Ramos","role":"Maintenance","extension":"jramos@syvuhsd.org"},{"name":"Leticia Ramos","role":"Custodian","extension":"lramos@syvuhsd.org"},{"name":"Miguel Ramos","role":"Lead Custodian","extension":"mramos@syvuhsd.org"},{"name":"Christian Robles","role":"Campus Security","extension":"crobles@syvuhsd.org"},{"name":"Jesus Rodriguez","role":"Custodian","extension":"jrodriguez@syvuhsd.org"},{"name":"Alejandra Rosales","role":"Registrar","extension":"3208"},{"name":"Adriana Ruelas","role":"Food Service Restaurant Assnt","extension":"aruelas@syvuhsd.org"},{"name":"Alexa Tomasini","role":"Assistant to the Principal","extension":"3563"},{"name":"Maria Velazquez","role":"Custodian","extension":"mvelazquez@syvuhsd.org"},{"name":"Terry Westfall","role":"Assistant to the Superintendent","extension":"3570"},{"name":"Brian Williams","role":"Custodian","extension":"bwilliams@syvuhsd.org"},{"name":"SYVHS Main Office","role":"Main Phone","extension":"805-688-6487"},{"name":"Police / Fire Emergency","role":"Emergency","extension":"911"},{"name":"Santa Barbara Sheriff","role":"Non-Emergency","extension":"805-683-2724"},{"name":"SYVUHSD District Office","role":"District","extension":"805-688-6487"}];
+
+    const defaultSuggestions = ["SYVHS Main Office", "Tori Martinez", "Danielle Lageman", "Josh McClurg"];
+
+    function getLevenshteinDistance(a, b) {
+      const matrix = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+      for (let j = 1; j <= b.length; j++) matrix[0][j] = j;
+      for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
+        }
+      }
+      return matrix[a.length][b.length];
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    const resultsList = document.getElementById("resultsList");
+    const resultCount = document.getElementById("resultCount");
+
+    function renderResults(query) {
+      const q = query.toLowerCase().trim();
+      let results = [];
+
+      if (!q) {
+        results = extensionSearch.filter(e => defaultSuggestions.includes(e.name));
+        resultCount.textContent = "Recommended Contacts";
+      } else {
+        results = extensionSearch.filter(e => {
+          const searchSpace = [e.name, (e.role || ""), (e.extension || ""), (e.room || "")].join(" ").toLowerCase();
+          return searchSpace.includes(q);
+        });
+
+        if (results.length === 0 && q.length >= 3) {
+           results = extensionSearch
+            .map(e => ({ ...e, dist: getLevenshteinDistance(q, e.name.toLowerCase().split(' ').pop().substring(0, q.length)) }))
+            .filter(e => e.dist <= 1)
+            .sort((a, b) => a.dist - b.dist);
+        }
+        resultCount.textContent = results.length > 0 ? `${results.length} found` : "No results found";
+      }
+
+      resultsList.innerHTML = results.length ? "" : '<p style="text-align:center; padding:20px; opacity:0.6; font-size:12px;">NO MATCHES FOUND</p>';
+
+      results.forEach(entry => {
+        const isPhoneNumber = entry.extension.replace(/[^0-9]/g, "").length > 4;
+        const label = isPhoneNumber ? "Phone" : "Ext";
+        const div = document.createElement("div");
+        div.className = "result-item";
+        div.innerHTML = `<p class="result-name">${entry.name}</p><p class="result-line">${entry.role}</p>${entry.room ? `<p class="result-line">Room: ${entry.room}</p>` : ''}<p class="result-ext">${label}: ${entry.extension}</p>`;
+        resultsList.appendChild(div);
+      });
+    }
+
+    searchInput.addEventListener("input", (e) => renderResults(e.target.value));
+    renderResults("");
+
+    // ── A2HS / INSTALL PROMPT ───────────────────────────────────
+    const a2hsPrompt  = document.getElementById('a2hsPrompt');
+    const a2hsDismiss = document.getElementById('a2hsDismiss');
+    const a2hsDesc    = document.getElementById('a2hsDesc');
+    const isIOS       = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid   = /Android/i.test(navigator.userAgent);
+    const a2hsSeen    = localStorage.getItem('syvhs_a2hs_seen');
+
+    if (isMobile && !isStandalone && !false && !a2hsSeen && a2hsPrompt) {
+      if (isAndroid && a2hsDesc) {
+        a2hsDesc.innerHTML = 'Tap <strong style="color:#fff">⋮ Menu</strong> in your browser then <strong style="color:#fff">"Add to Home Screen"</strong> for the full app experience.';
+      }
+      a2hsPrompt.hidden = false;
+      setTimeout(() => a2hsPrompt.classList.add('is-visible'), 1800);
+      a2hsDismiss?.addEventListener('click', () => {
+        a2hsPrompt.classList.remove('is-visible');
+        localStorage.setItem('syvhs_a2hs_seen', '1');
+        setTimeout(() => { a2hsPrompt.hidden = true; }, 500);
+      });
+    }
+
+    // ── DESKTOP INSTALL SYSTEM ─────────────────────────────────
+    (function() {
+      if (isStandalone) {
+        document.getElementById('installBtn')?.remove();
+        document.getElementById('installMenuSep')?.remove();
+        return;
+      }
+
+      const ua        = navigator.userAgent;
+      const isChrome  = /Chrome/.test(ua) && !/Edg|OPR/.test(ua);
+      const isEdge    = /Edg\//.test(ua);
+      const isSafari  = /Safari/.test(ua) && !/Chrome/.test(ua);
+      const isFirefox = /Firefox/.test(ua);
+      const isMacOS   = /Macintosh/.test(ua);
+      const installSeen = localStorage.getItem('syvhs_install_seen');
+
+      let deferredPrompt = null;
+
+      // Desktop: update install button label & icon
+      if (!isMobile) {
+        const installIcon = document.getElementById('installIcon');
+        const installLabel = document.getElementById('installLabel');
+        if (installIcon) installIcon.textContent = '🖥️';
+        if (installLabel) installLabel.textContent = isMacOS ? 'Add to Dock' : 'Add to Taskbar';
+      }
+
+      function getSteps() {
+        if (isChrome || isEdge) {
+          return [
+            { n:1, html: 'Click the <strong>install icon ⊕</strong> in your browser\'s address bar (top right)' },
+            { n:2, html: 'Click <strong>"Install"</strong> in the popup — that\'s it!' },
+            { n:3, html: 'SYVHS Tools will open in its own window and appear in your <strong>' + (isMacOS ? 'Dock & Applications' : 'Taskbar & Start Menu') + '</strong>' }
+          ];
+        }
+        if (isSafari && isMacOS) {
+          return [
+            { n:1, html: 'In the Safari menu bar, click <strong>File</strong>' },
+            { n:2, html: 'Choose <strong>"Add to Dock…"</strong>' },
+            { n:3, html: 'Click <strong>Add</strong> — SYVHS Tools will appear in your Dock like a real app' },
+            { n:4, html: '<em style="color:#ffa76e">Requires macOS Sonoma (14) or later</em>' }
+          ];
+        }
+        if (isFirefox) {
+          return [
+            { n:1, html: 'Firefox doesn\'t support app installation' },
+            { n:2, html: 'For the best experience, open this page in <strong>Chrome</strong> or <strong>Edge</strong>' },
+            { n:3, html: 'Then click the install icon in the address bar' }
+          ];
+        }
+        return [
+          { n:1, html: 'Open SYVHS Tools in <strong>Chrome</strong> or <strong>Edge</strong>' },
+          { n:2, html: 'Click the <strong>install icon ⊕</strong> in the address bar' },
+          { n:3, html: 'Click <strong>Install</strong> to add it to your ' + (isMacOS ? 'Dock' : 'Taskbar') }
+        ];
+      }
+
+      function buildModal() {
+        const container = document.getElementById('installModalSteps');
+        const cta = document.getElementById('installModalCta');
+        if (!container) return;
+        container.innerHTML = '';
+        getSteps().forEach(s => {
+          const div = document.createElement('div');
+          div.className = 'install-step';
+          div.innerHTML = '<span class="install-step-num">' + s.n + '</span><p class="install-step-text">' + s.html + '</p>';
+          container.appendChild(div);
+        });
+        if ((isChrome || isEdge) && deferredPrompt && cta) cta.style.display = 'block';
+      }
+
+      function openModal() { buildModal(); const m = document.getElementById('installModal'); if (m) m.hidden = false; }
+      function closeModal() { const m = document.getElementById('installModal'); if (m) m.hidden = true; }
+
+      const bannerDesc = document.getElementById('installBannerDesc');
+      if (bannerDesc) {
+        if (isChrome || isEdge) bannerDesc.textContent = 'One click to install — works like a real app on your ' + (isMacOS ? 'Mac' : 'PC') + '.';
+        else if (isSafari)      bannerDesc.textContent = 'Add to your Dock for instant access — no browser needed.';
+        else                    bannerDesc.textContent = 'Open in Chrome or Edge to install as a desktop app.';
+      }
+
+      const showBanner = !isMobile && !installSeen;
+
+      function showInstallBanner() {
+        const banner = document.getElementById('installBanner');
+        if (!banner || !showBanner) return;
+        banner.hidden = false;
+        setTimeout(() => banner.classList.add('is-visible'), 800);
+      }
+
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallBanner();
+      });
+
+      if (!isMobile && !installSeen && (isSafari || isFirefox)) {
+        setTimeout(showInstallBanner, 800);
+      }
+
+      document.getElementById('installBannerBtn')?.addEventListener('click', () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+          localStorage.setItem('syvhs_install_seen', '1');
+          document.getElementById('installBanner')?.classList.remove('is-visible');
+        } else {
+          openModal();
+        }
+      });
+
+      document.getElementById('installBannerDismiss')?.addEventListener('click', () => {
+        document.getElementById('installBanner')?.classList.remove('is-visible');
+        localStorage.setItem('syvhs_install_seen', '1');
+      });
+
+      document.getElementById('installModalClose')?.addEventListener('click', closeModal);
+      document.getElementById('installModalBackdrop')?.addEventListener('click', closeModal);
+
+      document.getElementById('installModalCta')?.addEventListener('click', () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(() => { deferredPrompt = null; closeModal(); });
+          localStorage.setItem('syvhs_install_seen', '1');
+        }
+      });
+
+      const navBtn = document.getElementById('installBtn');
+      if (navBtn) {
+        navBtn.addEventListener('click', () => {
+          navMenu?.classList.remove('is-open');
+          navMenuBtn?.classList.remove('is-open');
+          if (isMobile) {
+            if (a2hsPrompt) { a2hsPrompt.hidden = false; setTimeout(() => a2hsPrompt.classList.add('is-visible'), 10); }
+          } else if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+          } else {
+            openModal();
+          }
+        });
+      }
+    })();
+
+    // ── FEEDBACK MODAL ──────────────────────────────────────────
+    (function() {
+      let selectedRating = 0;
+      function openFeedback() {
+        document.getElementById('feedbackModal').hidden = false;
+      }
+      function closeFeedback() {
+        document.getElementById('feedbackModal').hidden = true;
+      }
+      document.getElementById('feedbackBtn')?.addEventListener('click', () => {
+        navMenu?.classList.remove('is-open');
+        navMenuBtn?.classList.remove('is-open');
+        openFeedback();
+      });
+      document.getElementById('feedbackClose')?.addEventListener('click', closeFeedback);
+      document.getElementById('feedbackBackdrop')?.addEventListener('click', closeFeedback);
+      document.querySelectorAll('.feedback-rating-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedRating = Number(btn.dataset.val);
+          document.querySelectorAll('.feedback-rating-btn').forEach(b => b.classList.toggle('is-selected', b === btn));
+        });
+      });
+      document.getElementById('feedbackSubmit')?.addEventListener('click', () => {
+        const submitBtn = document.getElementById('feedbackSubmit');
+        const ratingLabels = ['','😕 Needs Work','😐 It\'s OK','🙂 Pretty Good','😊 Love It','🤩 Amazing!'];
+        const rating   = selectedRating ? ratingLabels[selectedRating] : 'Not rated';
+        const good     = document.getElementById('feedbackGood')?.value.trim()    || '(none)';
+        const improve  = document.getElementById('feedbackImprove')?.value.trim() || '(none)';
+        const name     = document.getElementById('feedbackName')?.value.trim()    || 'Anonymous';
+        const page     = document.title || 'Unknown Page';
+        const message  =
+          `[SYVHS] Santa Ynez Valley Union High School\n` +
+          `Rating: ${rating}\n` +
+          `Page: ${page}\n\n` +
+          `What's working well:\n${good}\n\n` +
+          `What to add or change:\n${improve}`;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        emailjs.send('service_4mhkbik', 'template_fd0suj3', {
+          name: '[SYVHS] ' + name,
+          message: message,
+          rating: rating,
+        }).then(() => {
+          submitBtn.textContent = '✅ Sent! Thank you!';
+          submitBtn.style.background = '#2e7d32';
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Feedback ✉️';
+            submitBtn.style.background = '';
+            closeFeedback();
+            selectedRating = 0;
+            document.querySelectorAll('.feedback-rating-btn').forEach(b => b.classList.remove('is-selected'));
+            document.getElementById('feedbackGood').value = '';
+            document.getElementById('feedbackImprove').value = '';
+            document.getElementById('feedbackName').value = '';
+          }, 2000);
+        }).catch((err) => {
+          console.error('EmailJS error:', err);
+          submitBtn.textContent = '❌ Error, try again';
+          submitBtn.style.background = '#c62828';
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Feedback ✉️';
+            submitBtn.style.background = '';
+          }, 3000);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
