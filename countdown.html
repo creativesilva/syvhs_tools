@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0300">
+  <title>SYVHS Countdown</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/SY_AppIcon.png">
+  <style>
+    :root {
+      --orange: #ff8017;
+      --orange-light: #ffaa55;
+      --orange-dim: rgba(255,128,23,0.18);
+      --orange-gradient: linear-gradient(180deg, #ffd199 0%, #ff8017 55%, #cc4400 100%);
+      --red-gradient: linear-gradient(180deg, #ffb8b8 0%, #ff5b5b 58%, #b80000 100%);
+      --green-gradient: linear-gradient(180deg, #d2ffcf 0%, #5bff61 58%, #00b806 100%);
+      --white: #fefefe;
+      --muted: rgba(254,254,254,0.55);
+      --panel: rgba(255,255,255,0.04);
+      --panel-border: rgba(255,255,255,0.08);
+      --shadow: 0 20px 46px rgba(0,0,0,0.55);
+      --soft-shadow: 0 12px 24px rgba(0,0,0,0.35);
+      --card-hover: rgba(255,128,23,0.15);
+      --radius: 34px;
+      --app-spacing: 16px;
+      --standalone-app-width: 100vw;
+      --standalone-app-height: 100dvh;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    html { height: -webkit-fill-available; }
+    html, body { width: 100%; height: 100%; min-height: 100%; background: #0a0300; overflow: hidden; }
+    body {
+      min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      color: var(--white); touch-action: pan-y; user-select: none;
+      -webkit-user-select: none; -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
+    }
+    .frame {
+      width: 100%; height: 100dvh; min-height: 100vh; min-height: -webkit-fill-available;
+      display: flex; align-items: center; justify-content: center; padding: 10px;
+    }
+    .app {
+      width: 430px; height: 880px; max-width: 100%; max-height: 100%;
+      border-radius: var(--radius); overflow: hidden; position: relative;
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.10);
+      border-top-color: rgba(255,255,255,0.04);
+      background: linear-gradient(168deg,
+        rgba(10,3,0,0.98) 0%,
+        rgba(22,8,0,0.96) 28%,
+        rgba(85,32,0,0.93) 58%,
+        rgba(120,46,0,0.95) 80%,
+        rgba(10,3,0,0.98) 100%);
+      display: flex; flex-direction: column;
+      padding: 14px var(--app-spacing) var(--app-spacing) var(--app-spacing);
+      isolation: isolate; container-type: inline-size;
+    }
+    .app::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 55% 25%, rgba(255,128,23,0.14) 0%, transparent 60%),
+        radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 50%);
+      z-index: 0;
+    }
+    .ghost-logo {
+      position: absolute; top: 52%; left: 50%; width: 115%; opacity: 0.065;
+      transform: translate(-50%, -50%);
+      filter: saturate(0.2) brightness(1.8) contrast(1.1);
+      pointer-events: none; z-index: 0;
+    }
+    .content {
+      position: relative; z-index: 1; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .content::-webkit-scrollbar { display: none; }
+
+    /* TOP ROW */
+    .top-row {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; margin-bottom: 6px; flex-shrink: 0;
+    }
+    .nav-link {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--panel); border: 1px solid var(--panel-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white); text-decoration: none; opacity: 0.8;
+      transition: opacity 0.2s, background 0.2s;
+    }
+    .nav-link:hover { opacity: 1; background: var(--card-hover); }
+    .nav-link svg { width: 18px; height: 18px; }
+    .school-logo { height: 42px; object-fit: contain; }
+    .nav-spacer { width: 36px; }
+
+    /* BADGE ROW */
+    .badge-row {
+      display: flex; gap: 7px; align-items: center; justify-content: center;
+      margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .badge {
+      padding: 4px 12px; border-radius: 20px; font-size: clamp(9px,3vw,11px);
+      font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid; white-space: nowrap;
+    }
+    .badge-schedule {
+      background: var(--orange-dim); border-color: rgba(255,128,23,0.35);
+      color: var(--orange-light);
+    }
+    .badge-rotation-odd {
+      background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18);
+      color: var(--white);
+    }
+    .badge-rotation-even {
+      background: rgba(255,128,23,0.12); border-color: rgba(255,128,23,0.3);
+      color: var(--orange-light);
+    }
+    .badge-hidden { opacity: 0; pointer-events: none; }
+
+    /* MAIN CLOCK PANEL */
+    .clock-panel {
+      width: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: 24px; padding: 18px 14px 14px;
+      margin-bottom: 10px; flex-shrink: 0;
+    }
+    .state-label {
+      font-size: clamp(14px,5.5vw,20px); font-weight: 800;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--orange-light); margin-bottom: 4px; text-align: center;
+    }
+    .time-display {
+      font-size: clamp(42px,22vw,80px); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1; color: var(--white);
+      font-variant-numeric: tabular-nums; text-align: center;
+    }
+    .time-caption {
+      font-size: clamp(8px,3vw,11px); font-weight: 600;
+      letter-spacing: 0.18em; color: var(--muted); margin-top: 2px;
+      text-transform: uppercase;
+    }
+    .period-sub {
+      font-size: clamp(10px,3.5vw,13px); font-weight: 600;
+      letter-spacing: 0.09em; color: var(--muted);
+      margin-top: 6px; text-align: center; text-transform: uppercase;
+    }
+
+    /* NEXT UP BAR */
+    .next-bar {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: 16px; padding: 10px 14px; margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+    .next-label {
+      font-size: clamp(8px,3vw,10px); font-weight: 700; letter-spacing: 0.14em;
+      color: var(--orange-light); text-transform: uppercase; flex-shrink: 0;
+      padding: 3px 8px; background: var(--orange-dim);
+      border-radius: 8px; border: 1px solid rgba(255,128,23,0.25);
+    }
+    .next-value {
+      font-size: clamp(10px,3.8vw,14px); font-weight: 600;
+      letter-spacing: 0.04em; color: var(--white); flex: 1;
+    }
+    .next-time {
+      font-size: clamp(9px,3vw,12px); font-weight: 700; color: var(--muted);
+      letter-spacing: 0.06em; flex-shrink: 0;
+    }
+
+    /* CARD ROW */
+    .cards-row {
+      width: 100%; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-bottom: 10px; flex-shrink: 0;
+    }
+    .card {
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: 18px; padding: 12px 10px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; text-align: center;
+    }
+    .card-number {
+      font-size: clamp(28px,8vw,48px); font-weight: 900;
+      line-height: 1; letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+    .card-number.orange { background: var(--orange-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-number.green { background: var(--green-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-number.red { background: var(--red-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-label {
+      font-size: clamp(8px,3vw,10px); font-weight: 700; letter-spacing: 0.11em;
+      color: var(--muted); text-transform: uppercase; line-height: 1.3;
+    }
+    .card-sub {
+      font-size: clamp(8px,2.8vw,10px); font-weight: 500;
+      color: rgba(255,255,255,0.35); letter-spacing: 0.06em; line-height: 1.2;
+    }
+
+    /* PROGRESS */
+    .progress-section {
+      width: 100%; margin-bottom: 10px; flex-shrink: 0;
+    }
+    .progress-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+    }
+    .progress-title {
+      font-size: clamp(8px,3vw,10px); font-weight: 700; letter-spacing: 0.12em;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .progress-pct {
+      font-size: clamp(9px,3.2vw,12px); font-weight: 800; color: var(--orange-light);
+      letter-spacing: 0.06em;
+    }
+    .progress-track {
+      width: 100%; height: 8px; background: rgba(255,255,255,0.08);
+      border-radius: 99px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, #cc4400, #ff8017, #ffaa55);
+      transition: width 1s linear;
+    }
+    .progress-sub {
+      display: flex; justify-content: space-between; margin-top: 5px;
+    }
+    .progress-sub span {
+      font-size: clamp(7px,2.5vw,9px); font-weight: 500; color: rgba(255,255,255,0.3);
+      letter-spacing: 0.06em;
+    }
+
+    /* NO SCHOOL STATE */
+    .no-school-panel {
+      width: 100%; display: flex; flex-direction: column; align-items: center;
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: 24px; padding: 24px 14px 20px; margin-bottom: 10px;
+      text-align: center; flex-shrink: 0;
+    }
+    .no-school-title {
+      font-size: clamp(16px,8vw,30px); font-weight: 900; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--orange-light); margin-bottom: 6px;
+    }
+    .no-school-label {
+      font-size: clamp(10px,4vw,15px); font-weight: 600; letter-spacing: 0.08em;
+      color: var(--muted); margin-bottom: 16px; text-transform: uppercase;
+    }
+    .no-school-days {
+      font-size: clamp(42px,22vw,80px); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1; color: var(--white);
+      font-variant-numeric: tabular-nums;
+    }
+    .no-school-unit {
+      font-size: clamp(8px,3vw,11px); font-weight: 600; letter-spacing: 0.16em;
+      color: var(--muted); text-transform: uppercase; margin-top: 2px;
+    }
+    .no-school-resume {
+      margin-top: 12px; font-size: clamp(9px,3.2vw,12px); font-weight: 600;
+      letter-spacing: 0.08em; color: rgba(255,255,255,0.4); text-transform: uppercase;
+    }
+
+    /* TIME BAR */
+    .time-bar {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 10px; flex-shrink: 0;
+    }
+    .live-time {
+      font-size: clamp(12px,4.5vw,18px); font-weight: 700;
+      letter-spacing: 0.05em; color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .live-date {
+      font-size: clamp(9px,3vw,12px); font-weight: 500; color: rgba(255,255,255,0.3);
+      letter-spacing: 0.06em;
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: auto; padding-top: 8px; width: 100%; text-align: center;
+      font-size: clamp(8px,2.8vw,10px); font-weight: 500;
+      letter-spacing: 0.12em; color: rgba(255,255,255,0.2);
+      text-transform: uppercase; flex-shrink: 0;
+    }
+
+    /* SUMMER / YEAR DONE */
+    .summer-panel {
+      width: 100%; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; text-align: center; padding: 20px 0;
+    }
+    .summer-title {
+      font-size: clamp(28px,12vw,48px); font-weight: 900;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      background: var(--orange-gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 8px;
+    }
+    .summer-sub {
+      font-size: clamp(10px,4vw,15px); font-weight: 600;
+      letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase;
+    }
+
+    @media (max-height: 700px) {
+      .app { padding: 8px 12px 12px; }
+      .clock-panel { padding: 12px 12px 10px; margin-bottom: 7px; }
+      .cards-row { gap: 6px; margin-bottom: 7px; }
+      .progress-section { margin-bottom: 7px; }
+    }
+  </style>
+</head>
+<body>
+<div class="frame">
+  <div class="app">
+    <img src="assets/SYVHS_Logo_Only.svg" class="ghost-logo" alt="">
+    <div class="content">
+
+      <!-- TOP ROW -->
+      <div class="top-row">
+        <a href="index.html" class="nav-link" aria-label="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </a>
+        <img src="assets/SYVHS_Logo.svg" class="school-logo" alt="Santa Ynez Valley High School">
+        <div class="nav-spacer"></div>
+      </div>
+
+      <!-- LIVE TIME BAR -->
+      <div class="time-bar">
+        <span class="live-time" id="live-time">--:--:--</span>
+        <span class="live-date" id="live-date">---</span>
+      </div>
+
+      <!-- BADGE ROW -->
+      <div class="badge-row" id="badge-row">
+        <span class="badge badge-schedule" id="badge-schedule">REGULAR DAY</span>
+        <span class="badge badge-rotation-odd" id="badge-rotation">ODD DAY</span>
+      </div>
+
+      <!-- MAIN CLOCK (school day) -->
+      <div id="school-view">
+        <div class="clock-panel">
+          <div class="state-label" id="state-label">LOADING</div>
+          <div class="time-display" id="time-display">--:--</div>
+          <div class="time-caption" id="time-caption">REMAINING</div>
+          <div class="period-sub" id="period-sub"></div>
+        </div>
+
+        <!-- NEXT UP BAR -->
+        <div class="next-bar" id="next-bar">
+          <span class="next-label">NEXT</span>
+          <span class="next-value" id="next-value">—</span>
+          <span class="next-time" id="next-time"></span>
+        </div>
+
+        <!-- COUNTDOWN CARDS -->
+        <div class="cards-row">
+          <div class="card" id="card-break">
+            <div class="card-number orange" id="break-num">—</div>
+            <div class="card-label">SCHOOL DAYS<br>TO BREAK</div>
+            <div class="card-sub" id="break-label"></div>
+          </div>
+          <div class="card" id="card-year">
+            <div class="card-number orange" id="year-num">—</div>
+            <div class="card-label">SCHOOL DAYS<br>REMAINING</div>
+            <div class="card-sub" id="year-sub">End of Year</div>
+          </div>
+        </div>
+
+        <!-- YEAR PROGRESS -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-title">School Year Progress</span>
+            <span class="progress-pct" id="progress-pct">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+          <div class="progress-sub">
+            <span id="prog-elapsed">0 days done</span>
+            <span id="prog-total">— days total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NO SCHOOL VIEW -->
+      <div id="no-school-view" style="display:none; width:100%;">
+        <div class="no-school-panel">
+          <div class="no-school-title" id="ns-title">NO SCHOOL</div>
+          <div class="no-school-label" id="ns-label"></div>
+          <div class="no-school-days" id="ns-days">—</div>
+          <div class="no-school-unit" id="ns-unit">SCHOOL DAYS TO GO</div>
+          <div class="no-school-resume" id="ns-resume"></div>
+        </div>
+        <div class="cards-row">
+          <div class="card">
+            <div class="card-number orange" id="ns-year-num">—</div>
+            <div class="card-label">SCHOOL DAYS<br>REMAINING</div>
+          </div>
+          <div class="card">
+            <div class="card-number" id="ns-pct" style="font-size:clamp(28px,8vw,48px);color:var(--orange-light)">0%</div>
+            <div class="card-label">YEAR<br>COMPLETE</div>
+          </div>
+        </div>
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-title">School Year Progress</span>
+            <span class="progress-pct" id="ns-progress-pct">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="ns-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMER / YEAR DONE VIEW -->
+      <div id="summer-view" style="display:none; width:100%;">
+        <div class="summer-panel">
+          <div class="summer-title">SUMMER</div>
+          <div class="summer-sub">School year complete</div>
+          <div style="margin-top:20px; font-size:clamp(9px,3.2vw,12px); font-weight:600; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase;">
+            Go Pirates! ⚓
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">By: CreativeSilva &nbsp;·&nbsp; SYVHS Tools</div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ============================================================
+// CALENDAR DATA
+// ============================================================
+const FIRST_DAY  = '2025-08-11';
+const LAST_DAY   = '2026-05-29';
+const GRAD_DATE  = '2026-05-29';
+
+const NO_SCHOOL_SINGLE = {
+  '2025-09-01': 'Labor Day',
+  '2025-10-13': 'Staff Development Day',
+  '2025-11-11': "Veterans Day",
+  '2026-01-19': 'MLK Jr. Day',
+  '2026-04-03': 'Vacation Day',
+  '2026-05-25': 'Memorial Day'
+};
+
+const BREAKS = [
+  { start:'2025-11-24', end:'2025-11-28', label:'Thanksgiving Break' },
+  { start:'2025-12-22', end:'2026-01-02', label:'Winter Break' },
+  { start:'2026-02-16', end:'2026-02-20', label:'February Break' },
+  { start:'2026-04-06', end:'2026-04-10', label:'Spring Break' }
+];
+
+const FLEX_DAYS = new Set([
+  '2025-08-25','2025-09-29','2025-10-27','2025-12-01',
+  '2026-01-26','2026-02-23','2026-03-16','2026-04-27','2026-05-18'
+]);
+
+const FINALS_MAP = {
+  '2025-12-16':'finals_1','2025-12-17':'finals_2','2025-12-18':'finals_3',
+  '2026-05-27':'finals_1','2026-05-28':'finals_2','2026-05-29':'finals_3'
+};
+
+const MINIMUM_DAYS = new Set(['2025-09-26']);
+const ASSEMBLY_DAYS = new Set(['2026-01-16','2026-03-13']);
+
+// ============================================================
+// BELL SCHEDULES
+// All times 24h "HH:MM". Passing periods derived automatically.
+// skipMonday: Period 7 does not meet on Mondays (dow===1)
+// ============================================================
+const BELLS = {
+  regular: [
+    { id:'p12',       label:'Period 1/2',  start:'08:00', end:'09:40', type:'class',     skipMonday:false },
+    { id:'nutrition', label:'Nutrition',   start:'09:40', end:'09:53', type:'nutrition', skipMonday:false },
+    { id:'p34',       label:'Period 3/4',  start:'10:00', end:'11:40', type:'class',     skipMonday:false },
+    { id:'lunch',     label:'Lunch',       start:'11:40', end:'12:13', type:'lunch',     skipMonday:false },
+    { id:'p56',       label:'Period 5/6',  start:'12:20', end:'14:00', type:'class',     skipMonday:false },
+    { id:'p7',        label:'Period 7',    start:'14:07', end:'15:07', type:'class',     skipMonday:true  }
+  ],
+  flex: [
+    { id:'p12',        label:'Period 1/2', start:'08:00', end:'09:20', type:'class'     },
+    { id:'nutrition1', label:'Nutrition',  start:'09:20', end:'09:33', type:'nutrition' },
+    { id:'p34',        label:'Period 3/4', start:'09:40', end:'11:00', type:'class'     },
+    { id:'nutrition2', label:'Nutrition',  start:'11:00', end:'11:13', type:'nutrition' },
+    { id:'p56',        label:'Period 5/6', start:'11:20', end:'12:40', type:'class'     }
+  ],
+  finals_1: [
+    { id:'p1',        label:'Period 1',   start:'08:00', end:'09:55', type:'class'     },
+    { id:'nutrition', label:'Nutrition',  start:'09:55', end:'10:13', type:'nutrition' },
+    { id:'p3',        label:'Period 3',   start:'10:20', end:'12:15', type:'class'     },
+    { id:'lunch',     label:'Lunch',      start:'12:15', end:'12:58', type:'lunch'     },
+    { id:'p7',        label:'Period 7',   start:'13:05', end:'15:00', type:'class'     }
+  ],
+  finals_2: [
+    { id:'p2',        label:'Period 2',   start:'08:00', end:'09:58', type:'class'     },
+    { id:'nutrition', label:'Nutrition',  start:'09:58', end:'10:13', type:'nutrition' },
+    { id:'p4',        label:'Period 4',   start:'10:20', end:'12:15', type:'class'     }
+  ],
+  finals_3: [
+    { id:'p5',        label:'Period 5',   start:'08:00', end:'09:58', type:'class'     },
+    { id:'nutrition', label:'Nutrition',  start:'09:58', end:'10:13', type:'nutrition' },
+    { id:'p6',        label:'Period 6',   start:'10:20', end:'12:15', type:'class'     }
+  ],
+  minimum: [
+    { id:'p12',       label:'Period 1/2', start:'08:00', end:'08:55', type:'class'     },
+    { id:'p34',       label:'Period 3/4', start:'09:02', end:'09:57', type:'class'     },
+    { id:'nutrition', label:'Nutrition',  start:'09:57', end:'10:07', type:'nutrition' },
+    { id:'p56',       label:'Period 5/6', start:'10:14', end:'11:09', type:'class'     },
+    { id:'p7',        label:'Period 7',   start:'11:16', end:'12:11', type:'class'     }
+  ],
+  assembly: [
+    { id:'p12',       label:'Period 1/2', start:'08:00', end:'09:25', type:'class',    skipMonday:false },
+    { id:'nutrition', label:'Nutrition',  start:'09:25', end:'09:38', type:'nutrition',skipMonday:false },
+    { id:'p34',       label:'Period 3/4', start:'09:45', end:'11:10', type:'class',    skipMonday:false },
+    { id:'assembly',  label:'Assembly',   start:'11:15', end:'12:00', type:'assembly', skipMonday:false },
+    { id:'lunch',     label:'Lunch',      start:'12:00', end:'12:33', type:'lunch',    skipMonday:false },
+    { id:'p56',       label:'Period 5/6', start:'12:40', end:'14:00', type:'class',    skipMonday:false },
+    { id:'p7',        label:'Period 7',   start:'14:07', end:'15:07', type:'class',    skipMonday:true  }
+  ]
+};
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function addDays(ds, n) {
+  const [y,m,d] = ds.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate() + n);
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+
+function timeToSecs(t) {
+  const [h,m] = t.split(':').map(Number);
+  return h * 3600 + m * 60;
+}
+
+function formatCountdown(secs) {
+  secs = Math.max(0, secs);
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+function fmtTime12(t24) {
+  const [h,m] = t24.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function getPT() {
+  const now = new Date();
+  const ds  = now.toLocaleDateString('en-CA', { timeZone:'America/Los_Angeles' });
+  const ts  = now.toLocaleTimeString('en-US', {
+    timeZone:'America/Los_Angeles', hour12:false,
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  const [hs,ms,ss] = ts.split(':');
+  const h = parseInt(hs) % 24, mi = parseInt(ms), s = parseInt(ss);
+  const [y,mo,d] = ds.split('-').map(Number);
+  const dow = new Date(y, mo-1, d).getDay();
+  return { dateStr:ds, dow, h, m:mi, s, totalSecs: h*3600 + mi*60 + s };
+}
+
+// ============================================================
+// CALENDAR LOGIC
+// ============================================================
+function getNoSchoolInfo(ds) {
+  if (NO_SCHOOL_SINGLE[ds]) return { label: NO_SCHOOL_SINGLE[ds], type:'holiday' };
+  for (const b of BREAKS) {
+    if (ds >= b.start && ds <= b.end) return { label: b.label, type:'break' };
+  }
+  return null;
+}
+
+function isSchoolDay(ds) {
+  const [y,m,d] = ds.split('-').map(Number);
+  const dow = new Date(y, m-1, d).getDay();
+  if (dow === 0 || dow === 6) return false;
+  if (ds < FIRST_DAY || ds > LAST_DAY) return false;
+  if (getNoSchoolInfo(ds)) return false;
+  return true;
+}
+
+const _rotCache = {};
+function getRotation(ds) {
+  if (!isSchoolDay(ds)) return null;
+  if (_rotCache[ds]) return _rotCache[ds];
+  let count = 0, cur = FIRST_DAY;
+  while (cur < ds) {
+    if (isSchoolDay(cur)) count++;
+    cur = addDays(cur, 1);
+  }
+  return (_rotCache[ds] = count % 2 === 0 ? 'odd' : 'even');
+}
+
+function getScheduleType(ds) {
+  if (!isSchoolDay(ds)) return 'none';
+  if (FINALS_MAP[ds])     return FINALS_MAP[ds];
+  if (FLEX_DAYS.has(ds))  return 'flex';
+  if (MINIMUM_DAYS.has(ds)) return 'minimum';
+  if (ASSEMBLY_DAYS.has(ds)) return 'assembly';
+  return 'regular';
+}
+
+// Build schedule array with passing periods injected
+function buildSchedule(schedType, dow) {
+  const raw = (BELLS[schedType] || []).filter(b => !(b.skipMonday && dow === 1));
+  const blocks = [];
+  for (let i = 0; i < raw.length; i++) {
+    blocks.push({ ...raw[i] });
+    if (i < raw.length - 1) {
+      const gap = timeToSecs(raw[i+1].start) - timeToSecs(raw[i].end);
+      if (gap > 0) {
+        blocks.push({
+          id:`passing_${i}`, label:'Passing Period',
+          start: raw[i].end, end: raw[i+1].start, type:'passing'
+        });
+      }
+    }
+  }
+  return blocks;
+}
+
+// Map block id + rotation to display label
+function getDisplayLabel(block, rotation, schedType) {
+  if (block.type === 'passing')   return 'PASSING PERIOD';
+  if (block.type === 'nutrition') return 'NUTRITION';
+  if (block.type === 'lunch')     return 'LUNCH';
+  if (block.type === 'assembly')  return 'ASSEMBLY';
+  // class blocks — apply rotation for split periods
+  const isSplit = ['regular','flex','assembly','minimum'].includes(schedType);
+  if (isSplit && rotation) {
+    if (block.id === 'p12') return rotation === 'odd' ? 'PERIOD 1' : 'PERIOD 2';
+    if (block.id === 'p34') return rotation === 'odd' ? 'PERIOD 3' : 'PERIOD 4';
+    if (block.id === 'p56') return rotation === 'odd' ? 'PERIOD 5' : 'PERIOD 6';
+  }
+  return block.label.toUpperCase();
+}
+
+function getCurrentState(schedule, nowSecs) {
+  if (!schedule.length) return { phase:'no_schedule', secsRemaining:0, current:null, next:null };
+  const firstSecs = timeToSecs(schedule[0].start);
+  const lastSecs  = timeToSecs(schedule[schedule.length - 1].end);
+  if (nowSecs < firstSecs) {
+    return { phase:'before_school', secsRemaining: firstSecs - nowSecs, current:null, next:schedule[0] };
+  }
+  if (nowSecs >= lastSecs) {
+    return { phase:'after_school', secsRemaining:0, current:null, next:null };
+  }
+  for (let i = 0; i < schedule.length; i++) {
+    const s = timeToSecs(schedule[i].start);
+    const e = timeToSecs(schedule[i].end);
+    if (nowSecs >= s && nowSecs < e) {
+      return { phase: schedule[i].type, secsRemaining: e - nowSecs, current: schedule[i], next: schedule[i+1] || null };
+    }
+  }
+  return { phase:'after_school', secsRemaining:0, current:null, next:null };
+}
+
+// ============================================================
+// SCHOOL DAY COUNTING
+// ============================================================
+function countSchoolDays(from, to) {
+  let count = 0, cur = from;
+  while (cur < to) { if (isSchoolDay(cur)) count++; cur = addDays(cur, 1); }
+  return count;
+}
+
+// Memoize year totals (they don't change)
+let _yearTotal = null;
+function getYearTotal() {
+  if (!_yearTotal) _yearTotal = countSchoolDays(FIRST_DAY, addDays(LAST_DAY, 1));
+  return _yearTotal;
+}
+
+function getProgress(todayStr) {
+  const total    = getYearTotal();
+  const isToday  = isSchoolDay(todayStr);
+  const elapsed  = countSchoolDays(FIRST_DAY, todayStr) + (isToday ? 1 : 0);
+  const remaining = total - elapsed;
+  const pct      = Math.min(100, Math.round((elapsed / total) * 100));
+  return { total, elapsed, remaining, pct };
+}
+
+function getNextBreak(todayStr) {
+  let cur = addDays(todayStr, 1);
+  let schoolDays = 0;
+  for (let i = 0; i < 400; i++) {
+    if (cur > LAST_DAY) return null;
+    const ns = getNoSchoolInfo(cur);
+    if (ns) {
+      // walk to end of this no-school stretch
+      let end = cur;
+      while (true) {
+        const nxt = addDays(end, 1);
+        if (nxt > LAST_DAY) break;
+        const [y,m,d] = nxt.split('-').map(Number);
+        const dow = new Date(y,m-1,d).getDay();
+        if (getNoSchoolInfo(nxt) || dow === 0 || dow === 6) { end = nxt; }
+        else break;
+      }
+      return { label: ns.label, start: cur, end, schoolDaysAway: schoolDays };
+    }
+    if (isSchoolDay(cur)) schoolDays++;
+    cur = addDays(cur, 1);
+  }
+  return null;
+}
+
+function getDaysUntilResume(noSchoolEndStr) {
+  let cur = addDays(noSchoolEndStr, 1);
+  for (let i = 0; i < 30; i++) {
+    if (isSchoolDay(cur)) return { date: cur, daysTotal: i + 1 };
+    cur = addDays(cur, 1);
+  }
+  return null;
+}
+
+function getCalDaysUntil(todayStr, targetStr) {
+  const [y1,m1,d1] = todayStr.split('-').map(Number);
+  const [y2,m2,d2] = targetStr.split('-').map(Number);
+  const a = new Date(y1,m1-1,d1), b = new Date(y2,m2-1,d2);
+  return Math.round((b - a) / 86400000);
+}
+
+// ============================================================
+// DISPLAY HELPERS
+// ============================================================
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function formatDateLabel(ds) {
+  const [y,m,d] = ds.split('-').map(Number);
+  const dow = new Date(y,m-1,d).getDay();
+  return `${DAY_SHORT[dow]}, ${MON_SHORT[m-1]} ${d}`;
+}
+
+function scheduleLabel(type) {
+  const labels = {
+    regular:'REGULAR DAY', flex:'FLEX DAY',
+    finals_1:'FINALS – DAY 1', finals_2:'FINALS – DAY 2', finals_3:'FINALS – DAY 3',
+    minimum:'MINIMUM DAY', assembly:'ASSEMBLY DAY'
+  };
+  return labels[type] || type.toUpperCase();
+}
+
+function colorForPhase(phase) {
+  if (phase === 'class')       return 'orange';
+  if (phase === 'passing')     return '';
+  if (phase === 'nutrition')   return 'green';
+  if (phase === 'lunch')       return 'green';
+  if (phase === 'assembly')    return 'orange';
+  if (phase === 'before_school') return '';
+  return '';
+}
+
+// ============================================================
+// RENDER LOOP
+// ============================================================
+function render() {
+  const pt = getPT();
+  const ds  = pt.dateStr;
+
+  // Live time
+  const h12  = pt.h % 12 || 12;
+  const ampm = pt.h >= 12 ? 'PM' : 'AM';
+  document.getElementById('live-time').textContent =
+    `${h12}:${String(pt.m).padStart(2,'0')}:${String(pt.s).padStart(2,'0')} ${ampm}`;
+  document.getElementById('live-date').textContent = formatDateLabel(ds);
+
+  // ---- POST LAST DAY ----
+  if (ds > LAST_DAY) {
+    document.getElementById('summer-view').style.display   = 'block';
+    document.getElementById('school-view').style.display   = 'none';
+    document.getElementById('no-school-view').style.display = 'none';
+    document.getElementById('badge-row').style.display     = 'none';
+    return;
+  }
+
+  document.getElementById('summer-view').style.display = 'none';
+
+  const isToday     = isSchoolDay(ds);
+  const noSchoolInfo = getNoSchoolInfo(ds);
+  const [y,m,d]     = ds.split('-').map(Number);
+  const dow         = new Date(y,m-1,d).getDay();
+  const isWeekend   = (dow === 0 || dow === 6);
+  const schedType   = getScheduleType(ds);
+  const rotation    = getRotation(ds);
+  const progress    = getProgress(ds);
+
+  // Shared progress values
+  const pFill  = `${progress.pct}%`;
+  const pRem   = progress.remaining;
+  const pTotal = progress.total;
+  const pElap  = progress.elapsed;
+
+  // ---- NO SCHOOL / WEEKEND ----
+  if (!isToday) {
+    document.getElementById('school-view').style.display    = 'none';
+    document.getElementById('no-school-view').style.display = 'block';
+    document.getElementById('badge-row').style.display      = 'flex';
+
+    let nsTitle = 'NO SCHOOL';
+    let nsLabel = '';
+    let nsDays  = '—';
+    let nsUnit  = '';
+    let nsResume = '';
+
+    if (isWeekend) {
+      nsTitle = 'WEEKEND';
+      nsLabel = dow === 6 ? 'Saturday' : 'Sunday';
+      // Count cal days until Monday (or next school day)
+      let next = addDays(ds, 1);
+      let calDays = 1;
+      while (!isSchoolDay(next)) { next = addDays(next, 1); calDays++; }
+      nsDays  = String(calDays);
+      nsUnit  = calDays === 1 ? 'DAY UNTIL SCHOOL' : 'DAYS UNTIL SCHOOL';
+      nsResume = `Resumes ${formatDateLabel(next)}`;
+    } else if (noSchoolInfo) {
+      nsTitle = noSchoolInfo.type === 'break' ? noSchoolInfo.label.toUpperCase() : 'NO SCHOOL';
+      nsLabel = noSchoolInfo.type !== 'break' ? noSchoolInfo.label.toUpperCase() : '';
+      // Cal days until school resumes
+      let next = addDays(ds, 1);
+      let calDays = 1;
+      while (!isSchoolDay(next) && next <= LAST_DAY) { next = addDays(next, 1); calDays++; }
+      nsDays  = String(getCalDaysUntil(ds, next));
+      nsUnit  = 'DAYS UNTIL SCHOOL RESUMES';
+      nsResume = `Back ${formatDateLabel(next)}`;
+    } else if (ds < FIRST_DAY) {
+      nsTitle = 'SUMMER';
+      const daysUntil = getCalDaysUntil(ds, FIRST_DAY);
+      nsDays  = String(daysUntil);
+      nsUnit  = daysUntil === 1 ? 'DAY UNTIL SCHOOL STARTS' : 'DAYS UNTIL SCHOOL STARTS';
+      nsResume = `First Day: ${formatDateLabel(FIRST_DAY)}`;
+    }
+
+    document.getElementById('ns-title').textContent   = nsTitle;
+    document.getElementById('ns-label').textContent   = nsLabel;
+    document.getElementById('ns-days').textContent    = nsDays;
+    document.getElementById('ns-unit').textContent    = nsUnit;
+    document.getElementById('ns-resume').textContent  = nsResume;
+
+    document.getElementById('ns-year-num').textContent = String(pRem);
+    document.getElementById('ns-pct').textContent      = `${progress.pct}%`;
+    document.getElementById('ns-progress-pct').textContent = pFill;
+    document.getElementById('ns-progress-fill').style.width = pFill;
+
+    // Badges
+    document.getElementById('badge-schedule').textContent = isWeekend ? 'WEEKEND' : (noSchoolInfo ? noSchoolInfo.label.toUpperCase() : 'NO SCHOOL');
+    const br = document.getElementById('badge-rotation');
+    br.textContent = '—';
+    br.className = 'badge badge-rotation-odd badge-hidden';
+    return;
+  }
+
+  // ---- SCHOOL DAY ----
+  document.getElementById('school-view').style.display    = 'block';
+  document.getElementById('no-school-view').style.display = 'none';
+  document.getElementById('badge-row').style.display      = 'flex';
+
+  // Badges
+  document.getElementById('badge-schedule').textContent = scheduleLabel(schedType);
+  const rotBadge = document.getElementById('badge-rotation');
+  if (rotation) {
+    rotBadge.textContent  = rotation === 'odd' ? 'ODD DAY' : 'EVEN DAY';
+    rotBadge.className    = `badge ${rotation === 'odd' ? 'badge-rotation-odd' : 'badge-rotation-even'}`;
+  } else {
+    rotBadge.className    = 'badge badge-rotation-odd badge-hidden';
+  }
+
+  // Schedule + current state
+  const schedule  = buildSchedule(schedType, dow);
+  const state     = getCurrentState(schedule, pt.totalSecs);
+
+  // Time display
+  let stateLabel  = 'SCHOOL DAY';
+  let timeDisplay = '0:00';
+  let timeCaption = 'REMAINING';
+  let periodSub   = '';
+  let nextValue   = '—';
+  let nextTime    = '';
+
+  if (state.phase === 'before_school') {
+    stateLabel   = 'BEFORE SCHOOL';
+    timeDisplay  = formatCountdown(state.secsRemaining);
+    timeCaption  = 'UNTIL FIRST BELL';
+    if (state.next) {
+      nextValue = getDisplayLabel(state.next, rotation, schedType);
+      nextTime  = fmtTime12(state.next.start);
+    }
+  } else if (state.phase === 'after_school') {
+    stateLabel   = 'SCHOOL DISMISSED';
+    timeDisplay  = '—';
+    timeCaption  = '';
+    nextValue    = 'See you tomorrow!';
+  } else {
+    stateLabel   = state.current ? getDisplayLabel(state.current, rotation, schedType) : 'IN SESSION';
+    timeDisplay  = formatCountdown(state.secsRemaining);
+    if (state.phase === 'passing') {
+      timeCaption = 'TO GET TO CLASS';
+    } else {
+      timeCaption = 'REMAINING';
+    }
+    // Sub-label: show the time range for current block
+    if (state.current) {
+      periodSub = `${fmtTime12(state.current.start)} – ${fmtTime12(state.current.end)}`;
+    }
+    // Next up
+    if (state.next) {
+      nextValue = getDisplayLabel(state.next, rotation, schedType);
+      nextTime  = fmtTime12(state.next.start);
+    } else {
+      nextValue = 'Dismissal';
+    }
+  }
+
+  document.getElementById('state-label').textContent  = stateLabel;
+  document.getElementById('time-display').textContent = timeDisplay;
+  document.getElementById('time-caption').textContent = timeCaption;
+  document.getElementById('period-sub').textContent   = periodSub;
+  document.getElementById('next-value').textContent   = nextValue;
+  document.getElementById('next-time').textContent    = nextTime;
+
+  // Break countdown
+  const nextBreak = getNextBreak(ds);
+  if (nextBreak) {
+    const bDays = Math.max(0, nextBreak.schoolDaysAway);
+    const card  = document.getElementById('card-break');
+    const num   = document.getElementById('break-num');
+    num.textContent = String(bDays);
+    num.className   = `card-number ${bDays <= 5 ? 'green' : 'orange'}`;
+    document.getElementById('break-label').textContent = nextBreak.label;
+    card.style.display = 'flex';
+  } else {
+    document.getElementById('card-break').style.display = 'none';
+  }
+
+  // Year countdown
+  document.getElementById('year-num').textContent = String(pRem);
+  const ynEl = document.getElementById('year-num');
+  ynEl.className = `card-number ${pRem <= 10 ? 'red' : pRem <= 30 ? 'orange' : 'orange'}`;
+
+  // Progress bar
+  document.getElementById('progress-pct').textContent      = pFill;
+  document.getElementById('progress-fill').style.width     = pFill;
+  document.getElementById('prog-elapsed').textContent      = `${pElap} day${pElap !== 1 ? 's' : ''} done`;
+  document.getElementById('prog-total').textContent        = `${pTotal} days total`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+// Pre-warm rotation cache for today
+(function warmCache() {
+  try {
+    const ds = getPT().dateStr;
+    getRotation(ds);
+  } catch(e) {}
+})();
+
+render();
+setInterval(render, 1000);
+</script>
+</body>
+</html>

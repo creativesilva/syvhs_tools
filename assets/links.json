@@ -1,0 +1,65 @@
+{
+  "school": "Santa Ynez Valley Union High School",
+  "updated": "2026-04-11",
+  "categories": [
+    {
+      "id": "tools",
+      "label": "SYVHS Tools",
+      "links": [
+        { "id": "countdown", "label": "Countdown Clock", "href": "./countdown.html", "internal": true, "icon": "clock", "color": "orange" }
+      ]
+    },
+    {
+      "id": "daily",
+      "label": "Daily Essentials",
+      "links": [
+        { "id": "bulletin", "label": "Daily Bulletin", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1059344&type=d", "icon": "bulletin" },
+        { "id": "bells", "label": "Bell Schedules", "href": "https://www.syvpirates.org/apps/bell_schedules/", "icon": "bell" },
+        { "id": "calendar", "label": "Events Calendar", "href": "https://www.syvpirates.org/apps/events/", "icon": "calendar" },
+        { "id": "directory", "label": "Staff Directory", "href": "https://www.syvpirates.org/apps/staff/", "icon": "people" }
+      ]
+    },
+    {
+      "id": "portals",
+      "label": "Staff Portals",
+      "links": [
+        { "id": "canvas", "label": "Canvas", "href": "https://syvuhsd.instructure.com", "icon": "canvas" },
+        { "id": "aeries", "label": "Aeries Portal", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=1351052", "icon": "grades" },
+        { "id": "office365", "label": "Office 365 / Email", "href": "http://mail.office365.com", "icon": "email" },
+        { "id": "gmail", "label": "Gmail", "href": "http://www.gmail.com", "icon": "email" },
+        { "id": "google", "label": "Google Apps", "href": "http://accounts.google.com", "icon": "google" },
+        { "id": "frontline", "label": "Frontline Absences", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=2315202", "icon": "absence" },
+        { "id": "escape", "label": "Escape Employee Portal", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=1393533", "icon": "portal" }
+      ]
+    },
+    {
+      "id": "admin",
+      "label": "Admin & Forms",
+      "links": [
+        { "id": "purchase", "label": "Purchase Order Request", "href": "https://www.syvuhsd.org/apps/pages/index.jsp?uREC_ID=1052495&type=d&pREC_ID=form.SYVUHS.u6hSjwy.8Q_", "icon": "form" },
+        { "id": "officedepot", "label": "Office Depot Order", "href": "https://www.syvuhsd.org/apps/pages/index.jsp?uREC_ID=1052495&type=d&pREC_ID=form.SYVUHS.rBAM9z8.1Ic", "icon": "form" },
+        { "id": "maintenance", "label": "Maintenance Request", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=1373953", "icon": "wrench" },
+        { "id": "certforms", "label": "Certificated Employee Forms", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=1351055", "icon": "form" },
+        { "id": "classforms", "label": "Classified Employee Forms", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=1376520", "icon": "form" },
+        { "id": "it", "label": "IT Services", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=1708755", "icon": "computer" },
+        { "id": "assistance", "label": "Request for Assistance", "href": "https://forms.office.com/Pages/ResponsePage.aspx?id=1y84d_VFVUeYnWZEWuqIUp1C-o7awYFMk_dC6MVCxJdUQ0lXSlNPR0ZRU0NNSzVaRUg4VFpNTlBEVC4u", "icon": "help" },
+        { "id": "accident", "label": "Student Accident Report", "href": "https://www.syvuhsd.org/apps/form/form.SYVUHS.sBVXcLO.XN", "icon": "form" },
+        { "id": "incident", "label": "Public Incident / Injury", "href": "https://www.syvuhsd.org/apps/form/form.SYVUHS.t7J14cx.16", "icon": "form" },
+        { "id": "navigate", "label": "Navigate 360", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058728&type=d&pREC_ID=2624488", "icon": "shield" }
+      ]
+    },
+    {
+      "id": "school",
+      "label": "School Info",
+      "links": [
+        { "id": "academics", "label": "Academic Calendar", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1044942&type=d&pREC_ID=1374997", "icon": "calendar" },
+        { "id": "schoolcal", "label": "School Calendar", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1044942&type=d&pREC_ID=2714152", "icon": "calendar" },
+        { "id": "library", "label": "Library", "href": "https://www.syvpirates.org/apps/pages/Library", "icon": "book" },
+        { "id": "counseling", "label": "Counseling", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1052483&type=d&pREC_ID=1349667", "icon": "people" },
+        { "id": "pride", "label": "PRIDE Expectations", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1058736&type=d&pREC_ID=2345417", "icon": "star" },
+        { "id": "athletics", "label": "Athletics", "href": "https://www.syvpirates.org/apps/pages/index.jsp?uREC_ID=1053448&type=d&pREC_ID=1350357", "icon": "athletics" },
+        { "id": "district", "label": "SYVUHSD District", "href": "https://www.syvuhsd.org", "icon": "district" }
+      ]
+    }
+  ]
+}

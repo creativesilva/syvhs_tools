@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0300">
+  <title>SYVHS Tools</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/SY_AppIcon.png">
+  <style>
+    :root {
+      --orange: #ff8017;
+      --orange-light: #ffaa55;
+      --orange-dim: rgba(255,128,23,0.18);
+      --orange-gradient: linear-gradient(180deg, #ffd199 0%, #ff8017 55%, #cc4400 100%);
+      --white: #fefefe;
+      --muted: rgba(254,254,254,0.55);
+      --panel: rgba(255,255,255,0.04);
+      --panel-border: rgba(255,255,255,0.08);
+      --shadow: 0 20px 46px rgba(0,0,0,0.55);
+      --card-hover: rgba(255,128,23,0.15);
+      --radius: 34px;
+      --app-spacing: 16px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    html { height: -webkit-fill-available; }
+    html, body { width: 100%; height: 100%; min-height: 100%; background: #0a0300; overflow: hidden; }
+    body {
+      min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      color: var(--white); touch-action: pan-y; user-select: none;
+      -webkit-user-select: none; -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
+    }
+    .frame {
+      width: 100%; height: 100dvh; min-height: 100vh; min-height: -webkit-fill-available;
+      display: flex; align-items: center; justify-content: center; padding: 10px;
+    }
+    .app {
+      width: 430px; height: 880px; max-width: 100%; max-height: 100%;
+      border-radius: var(--radius); overflow: hidden; position: relative;
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.10);
+      border-top-color: rgba(255,255,255,0.04);
+      background: linear-gradient(168deg,
+        rgba(10,3,0,0.98) 0%,
+        rgba(22,8,0,0.96) 28%,
+        rgba(85,32,0,0.93) 58%,
+        rgba(120,46,0,0.95) 80%,
+        rgba(10,3,0,0.98) 100%);
+      display: flex; flex-direction: column;
+      padding: 14px var(--app-spacing) var(--app-spacing) var(--app-spacing);
+      isolation: isolate; container-type: inline-size;
+    }
+    .app::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 55% 25%, rgba(255,128,23,0.14) 0%, transparent 60%),
+        radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 50%);
+      z-index: 0;
+    }
+    .ghost-logo {
+      position: absolute; top: 52%; left: 50%; width: 115%; opacity: 0.065;
+      transform: translate(-50%, -50%);
+      filter: saturate(0.2) brightness(1.8) contrast(1.1);
+      pointer-events: none; z-index: 0;
+    }
+    .content {
+      position: relative; z-index: 1; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .content::-webkit-scrollbar { display: none; }
+
+    /* TOP ROW */
+    .top-row {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; margin-bottom: 10px; flex-shrink: 0;
+    }
+    .nav-link {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--panel); border: 1px solid var(--panel-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white); text-decoration: none; opacity: 0.8;
+      transition: opacity 0.2s, background 0.2s;
+    }
+    .nav-link:hover { opacity: 1; background: var(--card-hover); }
+    .nav-link svg { width: 18px; height: 18px; }
+    .school-logo { height: 42px; object-fit: contain; }
+    .nav-spacer { width: 36px; }
+
+    /* SEARCH BAR */
+    .search-container {
+      width: 100%; position: relative; margin-bottom: 10px; flex-shrink: 0;
+    }
+    .search-input {
+      width: 100%; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 14px;
+      padding: 10px 14px 10px 40px; color: var(--white);
+      font-size: clamp(13px,4vw,15px); font-family: inherit;
+      outline: none; transition: border-color 0.2s, background 0.2s;
+      user-select: text; -webkit-user-select: text;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.3); }
+    .search-input:focus {
+      border-color: rgba(255,128,23,0.55);
+      background: rgba(255,128,23,0.08);
+    }
+    .search-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,0.35); pointer-events: none; width: 18px; height: 18px;
+    }
+    .search-clear {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: rgba(255,255,255,0.35);
+      cursor: pointer; padding: 4px; display: none; align-items: center;
+      justify-content: center; border-radius: 50%; transition: color 0.2s;
+    }
+    .search-clear.visible { display: flex; }
+    .search-clear:hover { color: var(--orange-light); }
+    .search-clear svg { width: 14px; height: 14px; }
+
+    /* TABS */
+    .tabs {
+      display: flex; gap: 6px; width: 100%; margin-bottom: 10px;
+      flex-shrink: 0; overflow-x: auto; scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      padding: 5px 14px; border-radius: 20px; font-size: clamp(9px,3vw,11px);
+      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      border: 1px solid var(--panel-border); background: var(--panel);
+      color: var(--muted); cursor: pointer; white-space: nowrap;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .tab.active {
+      background: var(--orange-dim); border-color: rgba(255,128,23,0.4);
+      color: var(--orange-light);
+    }
+    .tab:hover:not(.active) {
+      background: rgba(255,255,255,0.07); color: var(--white);
+    }
+
+    /* MAIN SCROLL AREA */
+    .scroll-pane {
+      width: 100%; flex: 1; overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .scroll-pane::-webkit-scrollbar { display: none; }
+
+    /* LINKS VIEW */
+    #links-view { display: block; }
+
+    .category-section { margin-bottom: 14px; }
+    .category-label {
+      font-size: clamp(8px,3vw,10px); font-weight: 700; letter-spacing: 0.15em;
+      color: rgba(255,128,23,0.7); text-transform: uppercase;
+      margin-bottom: 6px; padding-left: 2px;
+    }
+    .link-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    }
+    .link-tile {
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 10px 6px 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      text-decoration: none; color: var(--white);
+      transition: background 0.18s, border-color 0.18s, transform 0.15s;
+      cursor: pointer; text-align: center;
+    }
+    .link-tile:hover, .link-tile:active {
+      background: var(--card-hover); border-color: rgba(255,128,23,0.35);
+      transform: scale(0.97);
+    }
+    .link-tile.internal {
+      border-color: rgba(255,128,23,0.22);
+      background: rgba(255,128,23,0.07);
+    }
+    .link-tile.internal:hover {
+      background: var(--card-hover); border-color: rgba(255,128,23,0.45);
+    }
+    .tile-icon {
+      width: 28px; height: 28px; display: flex; align-items: center;
+      justify-content: center; border-radius: 8px;
+      background: rgba(255,255,255,0.07); flex-shrink: 0;
+    }
+    .tile-icon svg { width: 16px; height: 16px; color: var(--orange-light); }
+    .tile-label {
+      font-size: clamp(8px,2.8vw,10px); font-weight: 600; line-height: 1.25;
+      letter-spacing: 0.03em; color: rgba(255,255,255,0.8);
+    }
+
+    /* DIRECTORY VIEW */
+    #directory-view { display: none; }
+
+    .dir-results {
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    .dir-section-title {
+      font-size: clamp(8px,3vw,10px); font-weight: 700; letter-spacing: 0.15em;
+      color: rgba(255,128,23,0.7); text-transform: uppercase;
+      margin: 8px 0 4px 2px;
+    }
+    .dir-card {
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 3px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .dir-card:hover { background: rgba(255,128,23,0.07); border-color: rgba(255,128,23,0.25); }
+    .dir-name {
+      font-size: clamp(12px,4vw,14px); font-weight: 700;
+      color: var(--white); letter-spacing: 0.01em;
+    }
+    .dir-role {
+      font-size: clamp(9px,3vw,11px); font-weight: 500;
+      color: var(--orange-light); letter-spacing: 0.04em;
+    }
+    .dir-contact {
+      display: flex; gap: 8px; margin-top: 3px; flex-wrap: wrap;
+    }
+    .dir-contact a {
+      font-size: clamp(9px,3vw,11px); font-weight: 500;
+      color: rgba(255,255,255,0.45); text-decoration: none; letter-spacing: 0.02em;
+      transition: color 0.15s; display: flex; align-items: center; gap: 3px;
+    }
+    .dir-contact a:hover { color: var(--orange-light); }
+    .dir-contact a svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+    .dir-empty {
+      text-align: center; padding: 32px 0;
+      color: rgba(255,255,255,0.25); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+    .dir-count {
+      font-size: clamp(8px,2.8vw,10px); font-weight: 600;
+      letter-spacing: 0.1em; color: rgba(255,255,255,0.2);
+      text-align: right; margin-bottom: 6px; text-transform: uppercase;
+    }
+
+    /* FOOTER */
+    .footer {
+      flex-shrink: 0; padding-top: 8px; width: 100%; text-align: center;
+      font-size: clamp(8px,2.8vw,10px); font-weight: 500;
+      letter-spacing: 0.12em; color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="app">
+      <img class="ghost-logo" src="assets/SYVHS_Logo_Only.svg" alt="">
+      <div class="content">
+
+        <!-- TOP ROW -->
+        <div class="top-row">
+          <a class="nav-link" href="countdown.html" title="Countdown Clock" aria-label="Countdown Clock">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 15.5 15.5"/>
+            </svg>
+          </a>
+          <img class="school-logo" src="assets/SYVHS_Logo.svg" alt="SYVHS">
+          <div class="nav-spacer"></div>
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div class="search-container">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="search" class="search-input" id="search-input"
+            placeholder="Search staff directory..."
+            autocomplete="off" autocorrect="off" spellcheck="false"
+          >
+          <button class="search-clear" id="search-clear" aria-label="Clear search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+          <button class="tab active" id="tab-links" onclick="switchTab('links')">Links</button>
+          <button class="tab" id="tab-directory" onclick="switchTab('directory')">Directory</button>
+        </div>
+
+        <!-- SCROLL PANE -->
+        <div class="scroll-pane">
+
+          <!-- LINKS VIEW -->
+          <div id="links-view">
+            <div id="links-container">
+              <div class="category-section">
+                <div class="category-label">Loading...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIRECTORY VIEW -->
+          <div id="directory-view">
+            <div id="dir-count" class="dir-count"></div>
+            <div id="dir-results" class="dir-results"></div>
+          </div>
+
+        </div><!-- /scroll-pane -->
+
+        <div class="footer">By: CreativeSilva &middot; SYVHS Tools</div>
+      </div><!-- /content -->
+    </div><!-- /app -->
+  </div><!-- /frame -->
+
+  <!-- Fuse.js for fuzzy search -->
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+
+  <script>
+    // ─── ICON LIBRARY ────────────────────────────────────────────────────────
+    const ICONS = {
+      clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 15.5 15.5"/></svg>`,
+      bulletin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/></svg>`,
+      bell: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`,
+      calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+      people: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
+      canvas: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>`,
+      grades: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+      email: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+      google: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+      absence: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`,
+      portal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>`,
+      form: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>`,
+      wrench: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>`,
+      computer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+      help: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+      shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+      book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`,
+      star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+      athletics: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M4.22 4.22l15.56 15.56"/><path d="M4.22 19.78L19.78 4.22"/></svg>`,
+      district: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    };
+
+    function getIcon(name) {
+      return ICONS[name] || ICONS['form'];
+    }
+
+    // ─── STAFF DATA & FUSE ───────────────────────────────────────────────────
+    let fuseInstance = null;
+    let allStaff = [];
+    let staffData = null;
+
+    fetch('assets/syvhs_staff.json')
+      .then(r => r.json())
+      .then(data => {
+        staffData = data;
+        // Flatten all sections, tagging each with section name
+        Object.entries(data.sections).forEach(([section, members]) => {
+          members.forEach(m => allStaff.push({ ...m, _section: section }));
+        });
+        fuseInstance = new Fuse(allStaff, {
+          keys: [
+            { name: 'name',  weight: 0.55 },
+            { name: 'role',  weight: 0.30 },
+            { name: 'email', weight: 0.15 }
+          ],
+          threshold: 0.4,
+          includeScore: true,
+          minMatchCharLength: 2,
+          ignoreLocation: true,
+        });
+        // Render initial directory (all staff)
+        renderDirectory('');
+      })
+      .catch(() => {
+        document.getElementById('dir-results').innerHTML =
+          '<div class="dir-empty">Unable to load staff directory.</div>';
+      });
+
+    // ─── LINKS DATA ───────────────────────────────────────────────────────────
+    fetch('assets/links.json')
+      .then(r => r.json())
+      .then(data => renderLinks(data))
+      .catch(() => {
+        document.getElementById('links-container').innerHTML =
+          '<div style="color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px 0;">Unable to load links.</div>';
+      });
+
+    function renderLinks(data) {
+      const container = document.getElementById('links-container');
+      container.innerHTML = '';
+      data.categories.forEach(cat => {
+        const section = document.createElement('div');
+        section.className = 'category-section';
+        const label = document.createElement('div');
+        label.className = 'category-label';
+        label.textContent = cat.label;
+        section.appendChild(label);
+
+        const grid = document.createElement('div');
+        grid.className = 'link-grid';
+
+        cat.links.forEach(link => {
+          const tile = document.createElement('a');
+          tile.className = 'link-tile' + (link.internal ? ' internal' : '');
+          tile.href = link.href;
+          if (!link.internal) tile.target = '_blank';
+          tile.rel = 'noopener noreferrer';
+
+          const iconWrap = document.createElement('div');
+          iconWrap.className = 'tile-icon';
+          iconWrap.innerHTML = getIcon(link.icon);
+
+          const lbl = document.createElement('div');
+          lbl.className = 'tile-label';
+          lbl.textContent = link.label;
+
+          tile.appendChild(iconWrap);
+          tile.appendChild(lbl);
+          grid.appendChild(tile);
+        });
+
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+    }
+
+    // ─── DIRECTORY RENDER ────────────────────────────────────────────────────
+    function renderDirectory(query) {
+      const countEl = document.getElementById('dir-count');
+      const resultsEl = document.getElementById('dir-results');
+
+      if (!staffData) return;
+
+      let grouped = {};
+
+      if (!query || query.trim().length < 2) {
+        // Show all, grouped by section
+        Object.entries(staffData.sections).forEach(([section, members]) => {
+          grouped[section] = members;
+        });
+      } else {
+        const results = fuseInstance.search(query.trim());
+        if (!results.length) {
+          countEl.textContent = '0 results';
+          resultsEl.innerHTML = '<div class="dir-empty">No staff found. Try a different spelling.</div>';
+          return;
+        }
+        results.forEach(r => {
+          const s = r.item._section;
+          if (!grouped[s]) grouped[s] = [];
+          grouped[s].push(r.item);
+        });
+        const total = results.length;
+        countEl.textContent = total + ' result' + (total !== 1 ? 's' : '');
+      }
+
+      if (!query || query.trim().length < 2) {
+        const total = allStaff.length;
+        countEl.textContent = total + ' staff members';
+      }
+
+      resultsEl.innerHTML = '';
+
+      const sectionOrder = ['School Administrators', 'Teachers', 'Other Employees'];
+      const orderedSections = sectionOrder.filter(s => grouped[s]);
+
+      orderedSections.forEach(section => {
+        const members = grouped[section];
+        if (!members.length) return;
+
+        const sectionTitle = document.createElement('div');
+        sectionTitle.className = 'dir-section-title';
+        sectionTitle.textContent = section;
+        resultsEl.appendChild(sectionTitle);
+
+        members.forEach(m => {
+          const card = document.createElement('div');
+          card.className = 'dir-card';
+
+          const name = document.createElement('div');
+          name.className = 'dir-name';
+          name.textContent = m.name;
+
+          const role = document.createElement('div');
+          role.className = 'dir-role';
+          role.textContent = m.role;
+
+          const contact = document.createElement('div');
+          contact.className = 'dir-contact';
+
+          if (m.email) {
+            const emailLink = document.createElement('a');
+            emailLink.href = 'mailto:' + m.email;
+            emailLink.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
+            emailLink.innerHTML += m.email;
+            emailLink.addEventListener('click', e => e.stopPropagation());
+            contact.appendChild(emailLink);
+          }
+          if (m.phone) {
+            const phoneLink = document.createElement('a');
+            phoneLink.href = 'tel:' + m.phone.replace(/[^+\d]/g,'');
+            phoneLink.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>`;
+            phoneLink.innerHTML += m.phone;
+            phoneLink.addEventListener('click', e => e.stopPropagation());
+            contact.appendChild(phoneLink);
+          }
+
+          card.appendChild(name);
+          card.appendChild(role);
+          if (m.email || m.phone) card.appendChild(contact);
+          resultsEl.appendChild(card);
+        });
+      });
+    }
+
+    // ─── TABS ─────────────────────────────────────────────────────────────────
+    let currentTab = 'links';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('links-view').style.display   = tab === 'links'     ? 'block' : 'none';
+      document.getElementById('directory-view').style.display = tab === 'directory' ? 'block' : 'none';
+      document.getElementById('tab-links').classList.toggle('active', tab === 'links');
+      document.getElementById('tab-directory').classList.toggle('active', tab === 'directory');
+
+      const input = document.getElementById('search-input');
+      if (tab === 'directory') {
+        input.placeholder = 'Search staff directory...';
+        input.focus();
+      } else {
+        input.placeholder = 'Search staff directory...';
+      }
+    }
+
+    // ─── SEARCH ──────────────────────────────────────────────────────────────
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value;
+      searchClear.classList.toggle('visible', q.length > 0);
+
+      // Auto-switch to directory tab when typing
+      if (q.length > 0 && currentTab !== 'directory') {
+        switchTab('directory');
+      }
+
+      renderDirectory(q);
+    });
+
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchClear.classList.remove('visible');
+      renderDirectory('');
+      searchInput.focus();
+    });
+
+    // Allow typing in search input (re-enable user-select)
+    searchInput.addEventListener('focus', () => {
+      document.body.style.userSelect = 'text';
+    });
+    searchInput.addEventListener('blur', () => {
+      document.body.style.userSelect = 'none';
+    });
+  </script>
+</body>
+</html>

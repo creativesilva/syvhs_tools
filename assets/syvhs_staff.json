@@ -1,0 +1,532 @@
+{
+  "source": "https://www.syvpirates.org/apps/staff/",
+  "scraped": "2026-04-11",
+  "school": "Santa Ynez Valley Union High School",
+  "mainPhone": "805-688-6487",
+  "emailDomain": "syvuhsd.org",
+  "sections": {
+    "School Administrators": [
+      {
+        "name": "Kelley Carter",
+        "role": "Refugio - Assistant Principal",
+        "email": "kcarter@syvuhsd.org",
+        "phone": "805-688-6487 x3397"
+      },
+      {
+        "name": "Jasmine Day",
+        "role": "Assistant Principal",
+        "email": "jday@syvuhsd.org",
+        "phone": "805-688-6487 x3999"
+      },
+      {
+        "name": "Elysia Lewis",
+        "role": "Chief Business Official",
+        "email": "elewis@syvuhsd.org",
+        "phone": "805-688-6487 x3560"
+      },
+      {
+        "name": "Tori Martinez",
+        "role": "SYHS Principal",
+        "email": "vmartinez@syvuhsd.org",
+        "phone": "805-688-6487 x2325"
+      },
+      {
+        "name": "Kimberly Sheehan",
+        "role": "Superintendent",
+        "email": "ksheehan@syvuhsd.org",
+        "phone": "805-688-6487 x3200"
+      }
+    ],
+    "Teachers": [
+      {
+        "name": "John Bailey",
+        "role": "Teacher",
+        "email": "jbailey@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Lisa Boyer",
+        "role": "Teacher",
+        "email": "lboyer@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Kylin Bray",
+        "role": "Teacher",
+        "email": "kbray@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Amelia Brown",
+        "role": "Teacher",
+        "email": "abrown@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Rob Cantrell",
+        "role": "Teacher; ASB Advisor",
+        "email": "rcantrell@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Cassandra Cathcart",
+        "role": "Teacher",
+        "email": "cjoyner@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Heather Clement",
+        "role": "Teacher",
+        "email": "hclement@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "John Connolly",
+        "role": "Teacher",
+        "email": "jconnolly@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Amy Curti",
+        "role": "Teacher",
+        "email": "acurti@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Mike Daniels",
+        "role": "Teacher",
+        "email": "mdaniels@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Maggie Fernandez",
+        "role": "Counselor",
+        "email": "mfernandez@syvuhsd.org",
+        "phone": "805-688-6487 x3321"
+      },
+      {
+        "name": "Greg Gandolfo",
+        "role": "Teacher",
+        "email": "ggandolfo@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Sarah Gandolfo",
+        "role": "Teacher",
+        "email": "sgandolfo@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Nicholas Goodman",
+        "role": "Teacher",
+        "email": "ngoodman@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Jason Heimerdinger",
+        "role": "Media Arts",
+        "email": "",
+        "phone": ""
+      },
+      {
+        "name": "Priya Jackson",
+        "role": "Teacher",
+        "email": "pjackson@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Jake Kalkowski",
+        "role": "Teacher",
+        "email": "jkalkowski@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "David Kirkhart",
+        "role": "Teacher",
+        "email": "dkirkhart@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Annick Labeeuw",
+        "role": "SDC 3 Teacher",
+        "email": "alabeeuw@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Danielle Lageman",
+        "role": "Head Counselor",
+        "email": "dlageman@syvuhsd.org",
+        "phone": "805-688-6487 x3211"
+      },
+      {
+        "name": "Cheryl Lee",
+        "role": "Teacher",
+        "email": "clee@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Emily Little",
+        "role": "Teacher",
+        "email": "elittle@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Taylor Magallanes",
+        "role": "Teacher & Athletic Trainer",
+        "email": "tmagallanes@syvuhsd.org",
+        "phone": "805-688-6487 x2388"
+      },
+      {
+        "name": "Josh McClurg",
+        "role": "Athletic Director",
+        "email": "jmcclurg@syvuhsd.org",
+        "phone": "805-688-6487 x3228"
+      },
+      {
+        "name": "Sally McNamara",
+        "role": "Teacher",
+        "email": "smcnamara@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Shannon Montanes",
+        "role": "Teacher",
+        "email": "smontanes@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Kaci Morrell",
+        "role": "Teacher",
+        "email": "kmorrell@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Chris Mullin",
+        "role": "Teacher",
+        "email": "cmullin@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Helen Nguyen",
+        "role": "School Psychologist",
+        "email": "hnguyen@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Sue Noyes",
+        "role": "Teacher, Department Chair",
+        "email": "snoyes@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Adriana Palacios",
+        "role": "Counselor",
+        "email": "apalacios@syvuhsd.org",
+        "phone": "805-688-6487 x3210"
+      },
+      {
+        "name": "Jimmy Palacios",
+        "role": "Teacher",
+        "email": "jpalacios@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Ian Pendry",
+        "role": "Teacher",
+        "email": "ipendry@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Katelyn Pendry",
+        "role": "Teacher",
+        "email": "kpendry@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Suzzanne Phipps",
+        "role": "Teacher",
+        "email": "sphipps@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Jennifer Rasmussen",
+        "role": "Teacher",
+        "email": "jrasmussen@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Casey Reck",
+        "role": "Teacher",
+        "email": "creck@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Susana Rodriguez",
+        "role": "Teacher",
+        "email": "srodriguez@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Gary Semerdjian",
+        "role": "Teacher",
+        "email": "gsemerdjian@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Patrick Shattuck",
+        "role": "Teacher",
+        "email": "pshattuck@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Billy Silvola",
+        "role": "Teacher",
+        "email": "bsilvola@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Sandy Slobig",
+        "role": "Teacher",
+        "email": "sslobig@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Naomi Thompson",
+        "role": "S.T.E.P. 3",
+        "email": "nthompson@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Agustin Vizcaino",
+        "role": "Teacher",
+        "email": "avizcaino@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Cory Withers",
+        "role": "Teacher",
+        "email": "cwithers@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Greg Wolf",
+        "role": "Teacher",
+        "email": "gwolf@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Erik Wordal",
+        "role": "Teacher",
+        "email": "ewordal@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Joanna Zaragoza",
+        "role": "Teacher",
+        "email": "jzaragoza@syvuhsd.org",
+        "phone": ""
+      }
+    ],
+    "Other Employees": [
+      {
+        "name": "SYHS Alumni",
+        "role": "",
+        "email": "alumni@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Leopoldo Amador",
+        "role": "Maintenance, Operational & Transportation Manager",
+        "email": "lamador@syvuhsd.org",
+        "phone": "805-688-6487 x3206"
+      },
+      {
+        "name": "Rudy Bondietti",
+        "role": "Maintenance",
+        "email": "rbondietti@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Juana Cabrera",
+        "role": "Food Service",
+        "email": "jcabrera@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Sayard Cooney",
+        "role": "Nurse",
+        "email": "scooney@syvuhsd.org",
+        "phone": "805-688-6487 x3310"
+      },
+      {
+        "name": "Andres De la Cruz",
+        "role": "Custodian",
+        "email": "adelacruz@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Marisela De La Cruz",
+        "role": "Business Office Technician",
+        "email": "mdelacruz@syvuhsd.org",
+        "phone": "805-688-6487 x3568"
+      },
+      {
+        "name": "Pedro De la Cruz",
+        "role": "Grounds",
+        "email": "pdelacruz@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Dev Davison",
+        "role": "Campus Security",
+        "email": "ddavison@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Javier Diaz",
+        "role": "Grounds",
+        "email": "jdiaz@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Carina Esparza",
+        "role": "Food Service",
+        "email": "cesparza@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Hector Garcia",
+        "role": "Maintenance",
+        "email": "hgarcia@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Maria Garcia",
+        "role": "Lead Student Services Technician",
+        "email": "mgarcia@syvuhsd.org",
+        "phone": "(805) 688-6487 x3225"
+      },
+      {
+        "name": "Christina Garver",
+        "role": "Campus Security",
+        "email": "cgarver@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Ricky Hernandez",
+        "role": "IT Systems Engineer",
+        "email": "rhernandez@syvuhsd.org",
+        "phone": "805-688-6487 x3325"
+      },
+      {
+        "name": "Edmund Hung",
+        "role": "IT Systems Engineer",
+        "email": "ehung@syvuhsd.org",
+        "phone": "805-688-6487 x3565"
+      },
+      {
+        "name": "Corina Krisher",
+        "role": "Food Service Manager",
+        "email": "ckrisher@syvuhsd.org",
+        "phone": "805-688-6487 x3232"
+      },
+      {
+        "name": "Selena Krisher",
+        "role": "Student Data Information Specialist",
+        "email": "skrisher@syvuhsd.org",
+        "phone": "805-688-6487 x3207"
+      },
+      {
+        "name": "Maryssa Lopez",
+        "role": "Accountant II",
+        "email": "mlopez@syvuhsd.org",
+        "phone": "805-688-6487 x3561"
+      },
+      {
+        "name": "Cortney Marino",
+        "role": "Library Media Specialist",
+        "email": "cmarino@syvuhsd.org",
+        "phone": "805-688-6487 x3202"
+      },
+      {
+        "name": "Ashley Moniot",
+        "role": "Attendance Assistant",
+        "email": "amoniot@syvuhsd.org",
+        "phone": "805-688-6487 x3238"
+      },
+      {
+        "name": "Claudia Pena",
+        "role": "Health and Wellness Coordinator",
+        "email": "cpena@syvuhsd.org",
+        "phone": "805-688-6487 x3270"
+      },
+      {
+        "name": "Jose Ramos",
+        "role": "Maintenance",
+        "email": "jramos@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Leticia Ramos",
+        "role": "Custodian",
+        "email": "lramos@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Miguel Ramos",
+        "role": "Lead Custodian",
+        "email": "mramos@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Christian Robles",
+        "role": "Campus Security",
+        "email": "crobles@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Jesus Rodriguez",
+        "role": "Custodian",
+        "email": "jrodriguez@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Alejandra Rosales",
+        "role": "Registrar",
+        "email": "arosales@syvuhsd.org",
+        "phone": "805-688-6487 x3208"
+      },
+      {
+        "name": "Adriana Ruelas",
+        "role": "Food Service Restaurant Assnt",
+        "email": "aruelas@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Alexa Tomasini",
+        "role": "Assistant to the Principal",
+        "email": "atomasini@syvuhsd.org",
+        "phone": "805-688-6487 x3563"
+      },
+      {
+        "name": "Maria Velazquez",
+        "role": "Custodian",
+        "email": "mvelazquez@syvuhsd.org",
+        "phone": ""
+      },
+      {
+        "name": "Terry Westfall",
+        "role": "Assistant to the Superintendent",
+        "email": "twestfall@syvuhsd.org",
+        "phone": "(805) 688-6487 x3570"
+      },
+      {
+        "name": "Brian Williams",
+        "role": "Custodian",
+        "email": "bwilliams@syvuhsd.org",
+        "phone": ""
+      }
+    ]
+  },
+  "totalCount": 86
+}
