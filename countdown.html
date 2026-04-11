@@ -715,7 +715,7 @@
           <div class="info-cell">
             <p class="info-label">School Days Left</p>
             <div class="info-number" id="daysLeft">--</div>
-            <p class="info-sub">Last Day: Jun 10</p>
+            <p class="info-sub">Last Day: May 29</p>
           </div>
           <div class="info-vert-divider"></div>
           <div class="info-cell">
@@ -760,7 +760,7 @@
           <div class="prog-sep"></div>
           <div class="prog-row">
             <div class="prog-meta">
-              <span class="prog-label">Graduation &middot; Jun 11</span>
+              <span class="prog-label">Graduation &middot; May 29</span>
               <span class="prog-pct" id="gradPct">—</span>
             </div>
             <div class="prog-track"><div class="prog-bar prog-bar--grad" id="gradFill" style="width:0%"></div></div>
@@ -1833,8 +1833,8 @@
     updateProgressBars();
     scheduleFitCountdownText();
 
-    // LIVE WEATHER — Open-Meteo API (Santa Ynez, CA 93454)
-    const METEO_URL = 'https://api.open-meteo.com/v1/forecast?latitude=34.6144&longitude=-120.0758&current_weather=true&temperature_unit=fahrenheit';
+    // LIVE WEATHER — Open-Meteo API (Solvang, CA 93463 — actual SYVHS campus location)
+    const METEO_URL = 'https://api.open-meteo.com/v1/forecast?latitude=34.5958&longitude=-120.1376&current_weather=true&temperature_unit=fahrenheit';
 
     function meteoIcon(code, isDay) {
       // WMO weather interpretation codes → emoji
