@@ -752,7 +752,7 @@
           <div class="prog-sep"></div>
           <div class="prog-row">
             <div class="prog-meta">
-              <span class="prog-label" id="prLabel">Till Progress Report</span>
+              <span class="prog-label" id="prLabel">Till End of Quarter</span>
               <span class="prog-pct" id="prPct">—</span>
             </div>
             <div class="prog-track"><div class="prog-bar prog-bar--pr" id="prFill" style="width:0%"></div></div>
@@ -1441,14 +1441,14 @@
       const diff = Math.max(0, Math.floor((nextDate - new Date()) / 1000));
       const isWeekendRecharge = now.weekday === "Saturday" || now.weekday === "Sunday" || (now.weekday === "Friday" && isAfterSchool);
 
-      // Determine if we're currently IN a break (SYVHS 2025-26)
+      // Determine if we're currently IN a break (SYVHS 2025-26, per markdown section 3.2)
       const currentBreaks = [
         { name: "Labor Day Weekend",       start: "2025-08-30", end: "2025-09-01", emoji: "🇺🇸" },
         { name: "Veterans Day",            start: "2025-11-11", end: "2025-11-11", emoji: "🎖" },
         { name: "Thanksgiving Break",      start: "2025-11-22", end: "2025-11-30", emoji: "🦃" },
-        { name: "Winter Break",            start: "2025-12-19", end: "2026-01-04", emoji: "❄️" },
+        { name: "Winter Break",            start: "2025-12-20", end: "2026-01-04", emoji: "❄️" },
         { name: "MLK Day Weekend",         start: "2026-01-17", end: "2026-01-19", emoji: "✊" },
-        { name: "February Break",          start: "2026-02-14", end: "2026-02-20", emoji: "🇺🇸" },
+        { name: "February Break",          start: "2026-02-14", end: "2026-02-22", emoji: "🏔" },
         { name: "Spring Break",            start: "2026-04-03", end: "2026-04-12", emoji: "🌸" },
         { name: "Memorial Day Weekend",    start: "2026-05-23", end: "2026-05-25", emoji: "🇺🇸" },
         { name: "Summer Break",            start: "2026-05-30", end: "2026-08-10", emoji: "☀️" }
@@ -1758,18 +1758,18 @@
       setTxt('gradPct',   grRemaining === 0 ? '🎓' : grRemaining === 1 ? '1 Day' : `${grRemaining} School Days`);
 
       // ── 4. NEXT BREAK (rolling countdown to every break/holiday) ──
+      // Break list is built directly from markdown section 3.2 (No School Days),
+      // plus bridging weekends so the rolling "Till Next Break" bar feels right.
       const allBreaks = [
         { name: "Labor Day Weekend",       start: "2025-08-30", end: "2025-09-01", emoji: "🇺🇸", stretchFrom: "2025-08-11" },
         { name: "Veterans Day",            start: "2025-11-11", end: "2025-11-11", emoji: "🎖", stretchFrom: "2025-09-02" },
         { name: "Thanksgiving Break",      start: "2025-11-22", end: "2025-11-30", emoji: "🦃", stretchFrom: "2025-11-12" },
-        { name: "Winter Break",            start: "2025-12-19", end: "2026-01-04", emoji: "❄️", stretchFrom: "2025-12-01" },
+        { name: "Winter Break",            start: "2025-12-20", end: "2026-01-04", emoji: "❄️", stretchFrom: "2025-12-01" },
         { name: "MLK Day Weekend",         start: "2026-01-17", end: "2026-01-19", emoji: "✊", stretchFrom: "2026-01-05" },
-        { name: "February Break",          start: "2026-02-14", end: "2026-02-20", emoji: "🇺🇸", stretchFrom: "2026-01-20" },
-        { name: "Spring Break",            start: "2026-04-03", end: "2026-04-12", emoji: "🌸", stretchFrom: "2026-02-21" },
+        { name: "February Break",          start: "2026-02-14", end: "2026-02-22", emoji: "🏔", stretchFrom: "2026-01-20" },
+        { name: "Spring Break",            start: "2026-04-03", end: "2026-04-12", emoji: "🌸", stretchFrom: "2026-02-23" },
         { name: "Memorial Day Weekend",    start: "2026-05-23", end: "2026-05-25", emoji: "🇺🇸", stretchFrom: "2026-04-13" },
-        { name: "Summer Break",            start: "2026-05-30", end: "2026-08-10", emoji: "☀️", stretchFrom: "2026-05-26" },
-        { name: "Juneteenth Weekend",      start: "2026-06-19", end: "2026-06-21", emoji: "✊", stretchFrom: "2026-05-30" },
-        { name: "4th of July Weekend",     start: "2026-07-03", end: "2026-07-05", emoji: "🎆", stretchFrom: "2026-06-22" }
+        { name: "Summer Break",            start: "2026-05-30", end: "2026-08-10", emoji: "☀️", stretchFrom: "2026-05-26" }
       ];
       // Find the next upcoming break we should count down to.
       // If we're currently IN a break, skip it and target the one after.
@@ -1795,37 +1795,35 @@
         setTxt('vacPct', '🎉');
       }
 
-      // ── 5. PROGRESS REPORTS (SYVHS grading periods) ─────────────────
-      const progressReports = [
-        "2025-09-05","2025-10-03","2025-11-07","2025-12-18",
-        "2026-02-06","2026-03-13","2026-04-24","2026-05-29"
+      // ── 5. END OF QUARTER (SYVHS grading periods, section 3.5 of the markdown) ─
+      // SYVHS runs a quarter system with mid-quarter and quarter end dates.
+      // They do not publish "progress reports" as a separate event, so the bar
+      // simply counts down to the next mid-quarter or quarter close.
+      const quarterEnds = [
+        { label: "Mid 1st Quarter", date: "2025-09-05" },
+        { label: "1st Quarter",     date: "2025-10-03" },
+        { label: "Mid 2nd Quarter", date: "2025-11-07" },
+        { label: "2nd Quarter",     date: "2025-12-18" },
+        { label: "Mid 3rd Quarter", date: "2026-02-06" },
+        { label: "3rd Quarter",     date: "2026-03-13" },
+        { label: "Mid 4th Quarter", date: "2026-04-24" },
+        { label: "4th Quarter",     date: "2026-05-29" }
       ];
-      const prStretches = [
-        { from: "2025-08-11", to: "2025-09-05" },
-        { from: "2025-09-05", to: "2025-10-03" },
-        { from: "2025-10-03", to: "2025-11-07" },
-        { from: "2025-11-07", to: "2025-12-18" },
-        { from: "2025-12-18", to: "2026-02-06" },
-        { from: "2026-02-06", to: "2026-03-13" },
-        { from: "2026-03-13", to: "2026-04-24" },
-        { from: "2026-04-24", to: "2026-05-29" }
-      ];
-      const nextPR = progressReports.find(d => dateStr <= d);
-      if (nextPR) {
-        const stretch = prStretches.find(s => s.to === nextPR);
-        if (stretch) {
-          const totalPRSDs  = schoolDays.filter(d => d >= stretch.from && d <= stretch.to).length;
-          const passedPRSDs = schoolDays.filter(d => d >= stretch.from && d < dateStr).length;
-          const prFrac = totalPRSDs > 0 ? passedPRSDs / totalPRSDs : 0;
-          const dToPR = schoolDays.filter(d => d >= dateStr && d <= nextPR).length;
-          const prRight = dToPR === 0 ? '🎉 Today!' : dToPR === 1 ? '1 Day' : `${dToPR} School Days`;
-          setFill('prFill', prFrac, 'prog-bar--pr');
-          setTxt('prPct',   prRight);
-          setTxt('prLabel', 'Till Progress Report');
-        }
+      const nextQIdx = quarterEnds.findIndex(q => dateStr <= q.date);
+      if (nextQIdx >= 0) {
+        const nextQ   = quarterEnds[nextQIdx];
+        const prevEnd = nextQIdx === 0 ? "2025-08-11" : quarterEnds[nextQIdx - 1].date;
+        const totalQSDs  = schoolDays.filter(d => d >= prevEnd && d <= nextQ.date).length;
+        const passedQSDs = schoolDays.filter(d => d >= prevEnd && d < dateStr).length;
+        const qFrac  = totalQSDs > 0 ? passedQSDs / totalQSDs : 0;
+        const dToQ   = schoolDays.filter(d => d >= dateStr && d <= nextQ.date).length;
+        const qRight = dToQ === 0 ? '🎉 Today!' : dToQ === 1 ? '1 Day' : `${dToQ} School Days`;
+        setFill('prFill', qFrac, 'prog-bar--pr');
+        setTxt('prPct',   qRight);
+        setTxt('prLabel', `Till ${nextQ.label} Ends`);
       } else {
         setFill('prFill', 1, 'prog-bar--pr');
-        setTxt('prLabel', 'Progress Reports Done ✓');
+        setTxt('prLabel', 'Year Complete 🎓');
         setTxt('prPct',   '✓');
       }
     }
