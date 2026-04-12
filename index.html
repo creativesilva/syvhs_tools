@@ -14,8 +14,8 @@
   <meta name="msapplication-navbutton-color" content="#cc5200">
   
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="SY_AppIcon.png">
-  <link rel="icon" type="image/png" sizes="1024x1024" href="SY_AppIcon.png">
+  <link rel="apple-touch-icon" href="assets/SYVHS_Logo_Only.svg">
+  <link rel="icon" type="image/svg+xml" href="assets/SYVHS_Logo_Only.svg">
   <title>SYVHS Tools</title>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>emailjs.init('68UkiTjqHIKZMkeCC');</script>
@@ -821,7 +821,7 @@
     <div class="app">
       <img src="assets/SYVHS_Logo.svg" alt="" class="ghost-logo">
       <div class="top-row">
-        <a href="index.html" class="nav-link" aria-label="Home"><img src="SY_Logo.png" alt="Logo" class="logo-clear"></a>
+        <a href="index.html" class="nav-link" aria-label="Home"><img src="assets/SYVHS_Logo_Only.svg" alt="Logo" class="logo-clear"></a>
         <h1 class="page-title">Tools</h1>
         <button id="navMenuBtn" class="nav-menu-btn" type="button" aria-label="Menu" aria-expanded="false">···</button>
       </div>
@@ -925,7 +925,7 @@
       <div id="newsModal" class="news-modal" hidden>
         <img src="assets/SYVHS_Logo.svg" alt="" class="news-ghost-logo">
         <div class="news-top-row">
-          <a href="index.html" class="nav-link" aria-label="Home"><img src="SY_Logo.png" alt="Logo" class="logo-clear"></a>
+          <a href="index.html" class="nav-link" aria-label="Home"><img src="assets/SYVHS_Logo_Only.svg" alt="Logo" class="logo-clear"></a>
           <h1 class="news-page-title">News</h1>
           <button id="newsClose" class="news-close" type="button" aria-label="Close">✕</button>
         </div>
@@ -1037,7 +1037,7 @@
         <div class="install-modal-backdrop" id="installModalBackdrop"></div>
         <div class="install-modal-dialog">
           <div class="install-modal-header">
-            <img src="SY_AppIcon.png" alt="" class="install-modal-appicon">
+            <img src="assets/SYVHS_Logo_Only.svg" alt="" class="install-modal-appicon">
             <div class="install-modal-titles">
               <p class="install-modal-title">SYVHS Tools</p>
               <p class="install-modal-sub">Install as Desktop App</p>
@@ -1053,7 +1053,7 @@
       <!-- ADD TO HOME SCREEN PROMPT (mobile only, non-standalone) -->
       <div id="a2hsPrompt" class="a2hs-prompt" hidden>
         <div class="a2hs-inner">
-          <img src="SY_AppIcon.png" alt="SYVHS Tools" class="a2hs-icon">
+          <img src="assets/SYVHS_Logo_Only.svg" alt="SYVHS Tools" class="a2hs-icon">
           <div class="a2hs-text">
             <p class="a2hs-title">Install as App</p>
             <p class="a2hs-desc" id="a2hsDesc">Tap <span class="a2hs-share">⬆ Share</span> then <strong style="color:#fff">"Add to Home Screen"</strong> for the full experience.</p>
@@ -2004,7 +2004,7 @@
       // Game day notifications
       function athFireNotif(title, body) {
         if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-        var opts = { body: body, icon: './SY_AppIcon.png', badge: './SY_AppIcon.png', tag: 'pvhs-gameday', renotify: true, vibrate: [180,80,180] };
+        var opts = { body: body, icon: './assets/SYVHS_Logo_Only.svg', badge: './assets/SYVHS_Logo_Only.svg', tag: 'pvhs-gameday', renotify: true, vibrate: [180,80,180] };
         try {
           navigator.serviceWorker?.getRegistration?.().then(function(reg) {
             if (reg?.showNotification) { reg.showNotification(title, opts); return; }
