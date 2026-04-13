@@ -57,7 +57,6 @@
     .top-row { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; height: 44px; flex-shrink: 0; margin-bottom: 6px; position: relative; }
     .logo-clear { width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.24)); flex-shrink: 0; }
     .page-title { position: absolute; left: 0; right: 0; text-align: center; font-size: 15px; font-weight: 700; color: #ffe8d0; text-transform: uppercase; margin: 0; letter-spacing: 0.14em; pointer-events: none; }
-    .spacer { width: 34px; flex-shrink: 0; }
 
     /* ── NAV DROPDOWN ── */
     .nav-menu-btn { appearance: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.13); border-radius: 12px; color: rgba(255,255,255,0.92); width: 34px; height: 34px; font-size: 14px; font-weight: 900; letter-spacing: 0.08em; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.16s, border-color 0.16s; }
@@ -230,10 +229,9 @@
 
         <!-- Top Row -->
         <div class="top-row">
-          <button class="nav-menu-btn" id="navMenuBtn" type="button" aria-label="Menu">···</button>
           <img src="assets/SYVHS_Logo_Only.svg" class="logo-clear" alt="SYVHS">
           <span class="page-title">Calendar</span>
-          <div class="spacer"></div>
+          <button class="nav-menu-btn" id="navMenuBtn" type="button" aria-label="Menu">···</button>
         </div>
 
         <!-- View Toggle -->
