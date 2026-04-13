@@ -1734,7 +1734,8 @@
             wkRight = cal === 1 ? '1 Day' : `${cal} Days`;
           }
         } else {
-          const remSDs = weekSDs.filter(sd => sd.dStr > dateStr);
+          const todaySchoolActive = isSD && totalSec < schoolEnd;
+          const remSDs = weekSDs.filter(sd => sd.dStr > dateStr || (sd.dStr === dateStr && todaySchoolActive));
           const cnt = remSDs.length;
           wkLabel  = cnt === 0 ? 'Weekend! 🎉' : 'Till the Weekend';
           wkRight  = cnt === 0 ? '🎉' : cnt === 1 ? '1 Day' : `${cnt} Days`;
