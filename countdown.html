@@ -684,6 +684,82 @@
     }
     .feedback-submit:active { opacity: 0.85; }
     .feedback-note { font-size: 9px; color: var(--muted); text-align: center; opacity: 0.65; margin: 0; }
+
+    /* ── SCHEDULE QUICK-VIEW PILLS ──────────────────────────── */
+    .sched-pills {
+      display: flex; gap: 6px; width: 100%; flex-shrink: 0;
+    }
+    .sched-pill {
+      flex: 1; appearance: none;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px; color: var(--muted);
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      padding: 9px 4px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      transition: background 0.14s, border-color 0.14s, color 0.14s;
+    }
+    .sched-pill:active { background: rgba(204,82,0,0.22); border-color: rgba(255,130,50,0.38); color: #ffd0a0; }
+
+    /* ── SCHEDULE BOTTOM SHEET ──────────────────────────────── */
+    .sched-sheet[hidden] { display: none; }
+    .sched-sheet {
+      position: absolute; inset: 0; z-index: 30;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .sched-sheet-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(5,2,0,0.72);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .sched-sheet-panel {
+      position: relative; z-index: 1;
+      background: rgba(14,7,1,0.97);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-bottom: none; border-radius: 22px 22px 0 0;
+      padding: 10px 16px 32px; max-height: 80%;
+      display: flex; flex-direction: column; gap: 8px;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.34,1.24,0.64,1);
+    }
+    .sched-sheet-panel.is-open { transform: translateY(0); }
+    .sched-sheet-handle {
+      width: 36px; height: 4px; border-radius: 99px;
+      background: rgba(255,255,255,0.16); margin: 0 auto 4px; flex-shrink: 0;
+    }
+    .sched-sheet-header {
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .sched-sheet-title {
+      font-size: 12px; font-weight: 800; color: #fff5ea;
+      text-transform: uppercase; letter-spacing: 0.11em;
+    }
+    .sched-sheet-close {
+      appearance: none; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.11); color: rgba(255,255,255,0.55);
+      border-radius: 99px; width: 28px; height: 28px; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sched-sheet-body {
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sched-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 11px; border-radius: 11px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .sched-row--class   { background: rgba(204,82,0,0.14); border-color: rgba(255,120,50,0.22); }
+    .sched-row--break   { background: rgba(255,195,90,0.09); border-color: rgba(255,195,90,0.16); }
+    .sched-row--passing { background: rgba(255,255,255,0.03); }
+    .sched-row-label { font-size: 11px; font-weight: 700; color: #ffeedd; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sched-row-time  { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; white-space: nowrap; }
+    .sched-note {
+      font-size: 9.5px; font-weight: 600; color: rgba(255,200,140,0.6);
+      text-align: center; letter-spacing: 0.05em; padding: 4px 2px 0;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -708,6 +784,13 @@
           <p class="wait-bell" id="waitBell">WAIT FOR THE BELL</p>
           <p class="access-row" id="accessText">No Restroom Access</p>
           <p class="status-row" id="scheduleText" style="text-align:center">Schedule: --</p>
+        </div>
+
+        <!-- SCHEDULE QUICK-VIEW PILLS -->
+        <div class="sched-pills">
+          <button class="sched-pill" type="button" data-sched="odd">🔴 Odd Day</button>
+          <button class="sched-pill" type="button" data-sched="even">🔵 Even Day</button>
+          <button class="sched-pill" type="button" data-sched="monday">📅 Monday</button>
         </div>
 
         <div class="card info-strip">
@@ -766,6 +849,19 @@
           </div>
         </div>
         <div class="footer-note">By: CreativeSilva</div>
+      </div>
+
+      <!-- SCHEDULE BOTTOM SHEET -->
+      <div id="schedSheet" class="sched-sheet" hidden>
+        <div class="sched-sheet-backdrop" id="schedSheetBackdrop"></div>
+        <div class="sched-sheet-panel" id="schedSheetPanel">
+          <div class="sched-sheet-handle"></div>
+          <div class="sched-sheet-header">
+            <span class="sched-sheet-title" id="schedSheetTitle">Schedule</span>
+            <button class="sched-sheet-close" id="schedSheetClose" type="button">✕</button>
+          </div>
+          <div class="sched-sheet-body" id="schedSheetBody"></div>
+        </div>
       </div>
 
       <!-- FEEDBACK MODAL -->
@@ -2140,6 +2236,85 @@
           }, 3000);
         });
       });
+    })();
+
+    // ── SCHEDULE QUICK-VIEW PILLS ──────────────────────────────────────────
+    (function() {
+      // Build display blocks for each pill — bake in the period labels up front.
+      // For "Monday" we show both possible period numbers (e.g. "1ST / 2ND PERIOD")
+      // since the odd/even rotation varies each week.
+      const pillData = {
+        odd: {
+          title: '🔴 Odd Day — Periods 1, 3, 5 & 7',
+          blocks: schedules.regular.map(b => ({...b, l: expandBlockLabel(b.l, 'odd')}))
+        },
+        even: {
+          title: '🔵 Even Day — Periods 2, 4, 6 & 7',
+          blocks: schedules.regular.map(b => ({...b, l: expandBlockLabel(b.l, 'even')}))
+        },
+        monday: {
+          title: '📅 Monday — Early Dismissal 2:00 PM',
+          blocks: [
+            {l:'1ST / 2ND PERIOD', s:'08:00', e:'09:40'},
+            {l:'NUTRITION',        s:'09:40', e:'09:53'},
+            {l:'PASSING',          s:'09:53', e:'10:00'},
+            {l:'3RD / 4TH PERIOD', s:'10:00', e:'11:40'},
+            {l:'LUNCH',            s:'11:40', e:'12:13'},
+            {l:'PASSING',          s:'12:13', e:'12:20'},
+            {l:'5TH / 6TH PERIOD', s:'12:20', e:'14:00'}
+          ],
+          note: 'Which periods run depends on ODD / EVEN rotation\nNo 7th Period · Flex Mondays end at 12:40 PM'
+        }
+      };
+
+      const sheet      = document.getElementById('schedSheet');
+      const sheetPanel = document.getElementById('schedSheetPanel');
+      const sheetTitle = document.getElementById('schedSheetTitle');
+      const sheetBody  = document.getElementById('schedSheetBody');
+
+      function fmt12(t) {
+        const [h, m] = t.split(':').map(Number);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12  = h % 12 || 12;
+        return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+      }
+
+      function openSheet(key) {
+        const data = pillData[key];
+        if (!data || !sheet) return;
+        sheetTitle.textContent = data.title;
+        sheetBody.innerHTML = data.blocks.map(b => {
+          const isClass = /PERIOD/i.test(b.l);
+          const isBreak = /LUNCH|NUTRITION/i.test(b.l);
+          const type    = isClass ? 'class' : isBreak ? 'break' : 'passing';
+          return `<div class="sched-row sched-row--${type}">
+            <span class="sched-row-label">${b.l}</span>
+            <span class="sched-row-time">${fmt12(b.s)} – ${fmt12(b.e)}</span>
+          </div>`;
+        }).join('') + (data.note
+          ? `<p class="sched-note">${data.note.replace(/\n/g,'<br>')}</p>`
+          : '');
+        sheet.hidden = false;
+        requestAnimationFrame(() => sheetPanel.classList.add('is-open'));
+      }
+
+      function closeSheet() {
+        sheetPanel?.classList.remove('is-open');
+        setTimeout(() => { if (sheet) sheet.hidden = true; }, 340);
+      }
+
+      document.querySelectorAll('.sched-pill').forEach(btn => {
+        btn.addEventListener('click', () => openSheet(btn.dataset.sched));
+      });
+      document.getElementById('schedSheetClose')?.addEventListener('click', closeSheet);
+      document.getElementById('schedSheetBackdrop')?.addEventListener('click', closeSheet);
+
+      // Swipe down to dismiss
+      let _sy0 = 0;
+      sheetPanel?.addEventListener('touchstart', e => { _sy0 = e.touches[0].clientY; }, {passive:true});
+      sheetPanel?.addEventListener('touchend',   e => {
+        if (e.changedTouches[0].clientY - _sy0 > 64) closeSheet();
+      }, {passive:true});
     })();
   </script>
 </body>

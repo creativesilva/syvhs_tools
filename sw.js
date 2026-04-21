@@ -1,6 +1,6 @@
 // SYVHS Tools — Service Worker
 // Provides: offline caching + notification delivery support
-const CACHE = 'syvhs-v6';
+const CACHE = 'syvhs-v7';
 const PRECACHE = [
   './index.html',
   './countdown.html',
