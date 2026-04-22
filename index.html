@@ -1332,6 +1332,55 @@
           }
         });
       })();
+      // ── SWIPE PAGE NAVIGATION ─────────────────────────────
+      (function() {
+        const PAGES = ['index.html', 'countdown.html', 'extension_search.html', 'calendar.html'];
+        const path  = location.pathname;
+        let idx = PAGES.findIndex(p => path.endsWith('/' + p));
+        if (idx < 0) idx = 0;
+        const _sdir = localStorage.getItem('sySwipeDir');
+        if (_sdir) {
+          localStorage.removeItem('sySwipeDir');
+          const _app = document.querySelector('.app');
+          if (_app) {
+            _app.style.transform = _sdir === 'l' ? 'translateX(6%)' : 'translateX(-6%)';
+            _app.style.opacity = '0';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              _app.style.transition = 'transform 0.32s cubic-bezier(0.2,0,0,1), opacity 0.28s ease-out';
+              _app.style.transform = '';
+              _app.style.opacity = '';
+              setTimeout(() => { _app.style.transition = ''; }, 350);
+            }));
+          }
+        }
+        let x0 = 0, y0 = 0, live = false;
+        function overlayOpen() {
+          return [...document.querySelectorAll('.feedback-modal,.install-modal,.sched-sheet,.sy-announce')]
+            .some(el => !el.hidden);
+        }
+        document.addEventListener('touchstart', e => {
+          if (overlayOpen()) { live = false; return; }
+          x0 = e.touches[0].clientX;
+          y0 = e.touches[0].clientY;
+          live = true;
+        }, {passive: true});
+        document.addEventListener('touchend', e => {
+          if (!live) return;
+          live = false;
+          const dx = e.changedTouches[0].clientX - x0;
+          const dy = e.changedTouches[0].clientY - y0;
+          if (Math.abs(dx) < 55 || Math.abs(dx) <= Math.abs(dy)) return;
+          const next = PAGES[(idx + (dx < 0 ? 1 : -1) + PAGES.length) % PAGES.length];
+          const app  = document.querySelector('.app');
+          if (app) {
+            app.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+            app.style.transform  = dx < 0 ? 'translateX(-6%)' : 'translateX(6%)';
+            app.style.opacity    = '0';
+          }
+          localStorage.setItem('sySwipeDir', dx < 0 ? 'l' : 'r');
+          setTimeout(() => { location.href = next; }, 190);
+        }, {passive: true});
+      })();
       document.getElementById('feedbackClose')?.addEventListener('click', closeFeedback);
       document.getElementById('feedbackBackdrop')?.addEventListener('click', closeFeedback);
       document.querySelectorAll('.feedback-rating-btn').forEach(btn => {
