@@ -137,6 +137,30 @@
     .footer-link { color: inherit; text-decoration: none; }
     .footer-link:active { opacity: 0.65; }
 
+    /* ── PORTRAIT LOCK ──────────────────────────────────────── */
+    .rotate-overlay {
+      display: none; position: fixed; inset: 0; z-index: 99999;
+      background: #0a0300;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 32px; text-align: center;
+    }
+    @media screen and (orientation: landscape) and (max-height: 560px) {
+      .rotate-overlay { display: flex; }
+    }
+    .rotate-overlay-icon { font-size: 48px; animation: rotateHint 2.4s ease-in-out infinite; }
+    @keyframes rotateHint {
+      0%, 40%, 100% { transform: rotate(0deg); }
+      60%, 80%      { transform: rotate(-90deg); }
+    }
+    .rotate-overlay-title {
+      font-size: 17px; font-weight: 800; color: #fff;
+      text-transform: uppercase; letter-spacing: 0.12em; margin: 0;
+    }
+    .rotate-overlay-sub {
+      font-size: 11px; font-weight: 500; color: #d0a878;
+      line-height: 1.6; margin: 0;
+    }
+
     body.is-standalone { background: #0a0300; }
 
     body.is-standalone::before {
@@ -367,6 +391,11 @@
   </style>
 </head>
 <body>
+  <div class="rotate-overlay">
+    <div class="rotate-overlay-icon">📱</div>
+    <p class="rotate-overlay-title">Rotate Your Device</p>
+    <p class="rotate-overlay-sub">SYVHS Tools is designed for portrait mode</p>
+  </div>
   <div class="frame">
     <div class="app">
       <img src="assets/SYVHS_Logo.svg" alt="" class="ghost-logo">
@@ -486,6 +515,8 @@
   </div>
 
   <script>
+    if (screen.orientation?.lock) screen.orientation.lock('portrait').catch(() => {});
+
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
     const isPopout = mode === 'popout';
