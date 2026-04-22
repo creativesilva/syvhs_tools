@@ -48,7 +48,7 @@
       max-height: 100%;
       border-radius: var(--radius); 
       overflow: hidden; position: relative; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.04);
-      background: linear-gradient(168deg, rgba(6,28,28,0.97) 0%, rgba(4,24,24,0.95) 30%, rgba(90,42,10,0.92) 60%, rgba(120,58,15,0.96) 82%, rgba(4,30,30,0.97) 100%);
+      background: linear-gradient(168deg, rgba(10,3,0,0.98) 0%, rgba(8,2,0,0.97) 28%, rgba(90,42,10,0.93) 56%, rgba(120,58,15,0.96) 78%, rgba(10,3,0,0.98) 100%);
       display: flex; flex-direction: column; padding: 14px var(--app-spacing) var(--app-spacing) var(--app-spacing);
       isolation: isolate;
     }
@@ -291,13 +291,13 @@
     }
     .install-modal-backdrop {
       position: absolute; inset: 0;
-      background: rgba(1,12,12,0.76);
+      background: rgba(12,4,0,0.76);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
     .install-modal-dialog {
       position: relative; width: min(100%, 380px);
       border-radius: 24px; border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(8,31,31,0.85);
+      background: rgba(20,8,2,0.85);
       box-shadow: 0 26px 48px rgba(0,0,0,0.4);
       padding: 20px; display: flex; flex-direction: column; gap: 14px;
     }
@@ -344,13 +344,13 @@
     }
     .feedback-modal-backdrop {
       position: absolute; inset: 0;
-      background: rgba(1,12,12,0.8);
+      background: rgba(12,4,0,0.8);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
     .feedback-dialog {
       position: relative; width: min(100%, 360px);
       border-radius: 24px; border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(6,26,26,0.85);
+      background: rgba(20,8,2,0.85);
       box-shadow: 0 26px 48px rgba(0,0,0,0.44);
       padding: 18px; display: flex; flex-direction: column; gap: 12px;
       max-height: calc(100% - 20px); overflow-y: auto;
@@ -469,7 +469,7 @@
         <div class="feedback-modal-backdrop" id="feedbackBackdrop"></div>
         <div class="feedback-dialog">
           <div class="feedback-header">
-            <p class="feedback-title">💬 Share Feedback</p>
+            <p class="feedback-title">📩 Submit Feedback</p>
             <button id="feedbackClose" class="feedback-close" type="button">✕</button>
           </div>
           <div class="feedback-field">
@@ -509,7 +509,9 @@
         <div id="installMenuSep" class="nav-menu-sep"></div>
         <button id="installBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon" id="installIcon">📲</span><span id="installLabel">Add to Home Screen</span></button>
         <div class="nav-menu-sep"></div>
-        <button id="feedbackBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon">💬</span>Share Feedback</button>
+        <button id="feedbackBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon">📩</span>Submit Feedback</button>
+        <div class="nav-menu-sep"></div>
+        <button id="shareAppBtn" class="nav-menu-item" type="button" role="menuitem"><span class="nav-menu-icon" id="shareAppIcon">💬</span>Share App</button>
       </div>
     </div>
   </div>
@@ -849,6 +851,27 @@
         navMenuBtn?.classList.remove('is-open');
         openFeedback();
       });
+      // ── SHARE APP ─────────────────────────────────────────
+      (function() {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const shareBtn  = document.getElementById('shareAppBtn');
+        const shareIcon = document.getElementById('shareAppIcon');
+        if (!shareBtn) return;
+        if (!isMobile && shareIcon) shareIcon.textContent = '📧';
+        shareBtn.addEventListener('click', () => {
+          navMenu?.classList.remove('is-open');
+          navMenuBtn?.classList.remove('is-open');
+          const url = 'https://creativesilva.github.io/syvhs_tools/';
+          if (isMobile) {
+            const msg = encodeURIComponent('Hey! Check out SYVHS Tools — a staff app with live bell schedule countdown, school calendar, staff directory, and more. Open it here: ' + url);
+            window.location.href = 'sms:?&body=' + msg;
+          } else {
+            const subject = encodeURIComponent('SYVHS Tools — Staff App');
+            const body = encodeURIComponent('Hey!\n\nCheck out SYVHS Tools — a staff app built for our school with:\n• Live bell schedule countdown\n• School calendar & key dates\n• Staff directory search\n\nOpen it here: ' + url + '\n\nYou can also install it as an app on your phone — just open the link and tap "Add to Home Screen".\n\nEnjoy!');
+            window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+          }
+        });
+      })();
       document.getElementById('feedbackClose')?.addEventListener('click', closeFeedback);
       document.getElementById('feedbackBackdrop')?.addEventListener('click', closeFeedback);
       document.querySelectorAll('.feedback-rating-btn').forEach(btn => {
