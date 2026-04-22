@@ -685,6 +685,70 @@
     .feedback-submit:active { opacity: 0.85; }
     .feedback-note { font-size: 9px; color: var(--muted); text-align: center; opacity: 0.65; margin: 0; }
 
+    /* ── WHAT'S NEW ANNOUNCEMENT ────────────────────────────── */
+    .sy-announce[hidden] { display: none; }
+    .sy-announce {
+      position: absolute; inset: 0; z-index: 40;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .sy-announce-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(5,2,0,0.80);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .sy-announce-sheet {
+      position: relative; z-index: 1;
+      background: rgba(14,5,0,0.98);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-bottom: none; border-radius: 26px 26px 0 0;
+      padding: 12px 20px 36px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      transform: translateY(100%);
+      transition: transform 0.38s cubic-bezier(0.34,1.24,0.64,1);
+    }
+    .sy-announce-sheet.is-open { transform: translateY(0); }
+    .sy-announce-handle {
+      width: 36px; height: 4px; border-radius: 99px;
+      background: rgba(255,255,255,0.18); margin-bottom: 2px;
+    }
+    .sy-announce-close {
+      position: absolute; top: 14px; right: 16px;
+      appearance: none; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13); color: rgba(255,255,255,0.6);
+      border-radius: 99px; width: 28px; height: 28px; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .sy-announce-pill {
+      background: rgba(204,82,0,0.25); border: 1px solid rgba(255,120,40,0.40);
+      border-radius: 99px; font-size: 9.5px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.14em; color: #ff9050;
+      padding: 3px 12px;
+    }
+    .sy-announce-icon { font-size: 34px; line-height: 1; }
+    .sy-announce-title {
+      font-size: 20px; font-weight: 900; color: #fff;
+      text-align: center; letter-spacing: 0.01em; margin: 0;
+    }
+    .sy-announce-list {
+      list-style: none; padding: 0; margin: 0; width: 100%;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .sy-announce-list li {
+      font-size: 11.5px; font-weight: 600; color: #ffe0c0; line-height: 1.45;
+      padding: 7px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .sy-announce-list li:last-child { border-bottom: none; }
+    .sy-announce-btn {
+      width: 100%; appearance: none;
+      background: linear-gradient(135deg, #993800 0%, #e05800 50%, #cc5200 100%);
+      border: none; border-radius: 16px; padding: 14px;
+      color: #fff; font-size: 13px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.12em; cursor: pointer;
+      margin-top: 4px;
+    }
+    .sy-announce-btn:active { opacity: 0.85; }
+
     /* ── SCHEDULE QUICK-VIEW PILLS ──────────────────────────── */
     .sched-pills {
       display: flex; gap: 6px; width: 100%; flex-shrink: 0; margin-bottom: 5px;
@@ -866,6 +930,24 @@
           </div>
         </div>
         <div class="footer-note">By: CreativeSilva</div>
+      </div>
+
+      <!-- WHAT'S NEW ANNOUNCEMENT -->
+      <div id="syAnnounce" class="sy-announce" hidden>
+        <div class="sy-announce-backdrop" id="syAnnounceBackdrop"></div>
+        <div class="sy-announce-sheet" id="syAnnounceSheet">
+          <div class="sy-announce-handle"></div>
+          <button class="sy-announce-close" id="syAnnounceClose" type="button">✕</button>
+          <span class="sy-announce-pill">Updated</span>
+          <div class="sy-announce-icon">📋</div>
+          <h2 class="sy-announce-title">Schedule Cards</h2>
+          <ul class="sy-announce-list">
+            <li>🔴 <strong>Odd Day</strong>, 🔵 <strong>Even Day</strong>, and 🟠 <strong>Monday</strong> quick-view cards are now live</li>
+            <li>Tap any card to see the full bell schedule with period times at a glance</li>
+            <li>Swipe down to dismiss — works just like the rest of the app</li>
+          </ul>
+          <button class="sy-announce-btn" id="syAnnounceOk" type="button">Got it!</button>
+        </div>
       </div>
 
       <!-- SCHEDULE BOTTOM SHEET -->
@@ -2254,6 +2336,32 @@
           }, 3000);
         });
       });
+    })();
+
+    // ── WHAT'S NEW ANNOUNCEMENT (fires once on next launch) ───────────────
+    (function() {
+      const KEY   = 'syvhs_schedAnnounced_v1';
+      if (localStorage.getItem(KEY)) return;
+      const el    = document.getElementById('syAnnounce');
+      const sheet = document.getElementById('syAnnounceSheet');
+      if (!el || !sheet) return;
+      function dismiss() {
+        sheet.classList.remove('is-open');
+        localStorage.setItem(KEY, '1');
+        setTimeout(() => { el.hidden = true; }, 380);
+      }
+      setTimeout(() => {
+        el.hidden = false;
+        requestAnimationFrame(() => sheet.classList.add('is-open'));
+      }, 2500);
+      document.getElementById('syAnnounceClose')?.addEventListener('click', dismiss);
+      document.getElementById('syAnnounceBackdrop')?.addEventListener('click', dismiss);
+      document.getElementById('syAnnounceOk')?.addEventListener('click', dismiss);
+      let _ay0 = 0;
+      sheet.addEventListener('touchstart', e => { _ay0 = e.touches[0].clientY; }, {passive:true});
+      sheet.addEventListener('touchend',   e => {
+        if (e.changedTouches[0].clientY - _ay0 > 60) dismiss();
+      }, {passive:true});
     })();
 
     // ── SCHEDULE QUICK-VIEW PILLS ──────────────────────────────────────────
